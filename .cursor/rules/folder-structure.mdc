@@ -1,0 +1,49 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Folder Structure & Code Organization
+
+This project follows a clean and modular folder structure for maintainable and scalable development. All **business logic** resides inside **repositories**, and **controllers** remain clean and simple, handling only request/response logic.
+
+---
+
+### Frontend Structure
+
+- `app/Http/Controllers/Frontend/`  
+  → Handles **HTTP requests and responses** for public-facing features.  
+  → Controllers must be kept **thin**, only delegating to repositories or services.
+
+- `app/Models/Frontend/`  
+  → Contains **Eloquent models** tied to the frontend side of the application.
+
+- `app/Repositories/Frontend/`  
+  → Contains **repository classes** responsible for implementing **business logic** and **database interactions** for frontend use cases.
+
+- `resources/views/frontend/`  
+  → Blade templates used to render **public UI components**.
+
+---
+
+### Backend Structure
+
+- `app/Http/Controllers/Backend/<ModuleName>/<ModuleName>Controller.php`  
+  → Each backend controller should be placed in a **folder named after the module**.  
+  → Controllers must stay **thin**, delegating logic to Repositories or Services.  
+  → Example: `PostController` → `app/Http/Controllers/Backend/Post/PostController.php`
+
+- `app/Models/Backend/<ModelName>/<ModelName>.php`  
+  → Each model must reside inside a **folder named after itself**.  
+  → Used for backend-specific Eloquent models.  
+  → Example: `Post` → `app/Models/Backend/Post/Post.php`
+
+- `app/Repositories/Backend/<ModelName>/<ModelName>Repository.php`  
+  → Each repository should be inside a **folder named after the model**.  
+  → Encapsulates backend business logic and queries.  
+  → Example: `PostRepository` → `app/Repositories/Backend/Post/PostRepository.php`
+
+- `resources/views/backend/`  
+  → Blade views used to render **admin or dashboard interfaces**.
+
+---

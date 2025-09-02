@@ -1,0 +1,150 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Business Logic Guidelines: Using Controller and Repository with OOP Concepts
+
+## Structure Overview
+
+1. **Controllers**:
+   - **Handles HTTP requests** and responses.
+   - Delegates all **business logic** to **repositories** (or services for third-party interactions).
+   - Should remain **simple** and **clean**.
+
+2. **Repositories**:
+   - **Handles database interactions** (fetch, update, delete).
+   - Should be **responsible only for accessing the data**, such as fetching, updating, and deleting data from the database..
+   - Should expose methods for accessing data (e.g., `findById()`, `create()`, `update()`).
+
+3. **Services (For Third-Party Services)**:
+   - Used only when interacting with external systems (e.g., third-party APIs, payment gateways).
+   - Should contain logic for **communicating with external services** and **processing the responses**.
+
+4. **Object-Oriented Principles**:
+   - Use **classes** and **interfaces** to encapsulate behavior.
+   - Use **dependency injection** to inject dependencies into controllers and repositories.
+   - Organize related logic in separate **classes** for better readability and maintenance.
+
+## Example: Controller with Repository and OOP Principles
+
+### **Controller** (`UserController.php`)
+
+```php
+use App\Repositories\UserRepository;
+
+class UserController extends Controller
+{
+    protected UserRepository $userRepository;
+
+    /**
+     * UserController constructor.
+     *
+     * @param UserRepository $userRepository
+     */
+    public function __construct(UserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+
+    /**
+     * Update the specified user.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $response = $this->userRepository->updateUser($id, $request->all());
+        return response()->json($response);
+    }
+}
+```
+### **Repository** (`UserRepository.php`)
+
+```php
+namespace App\Repositories;
+
+use App\Models\User;
+
+class UserRepository extends BaseRepository
+{
+    /**
+     * Get a user by their ID.
+     *
+     * @param int $id
+     * @return array
+     */
+    public function findById(int $id): array
+    {
+        try {
+            $user = $this->userModalInstance::find($id);
+            if (!$user) {
+                return [
+                    'status' => Constant::STATUS_FALSE,
+                    'message' => 'User not found',
+                ];
+            }
+
+            return [
+                'status' => Constant::STATUS_TRUE,
+                'data' => $user;
+                'message' => 'User updated successfully'
+            ]
+        } catch (\Exception $exception) {
+            Log::error($exception);
+
+            return [
+                'status' => Constant::STATUS_FALSE,
+                'message' => 'Something went wrong'
+            ];
+        }
+    }
+
+    /**
+     * Update a user's information.
+     *
+     * @param int $id 
+     * @param array $data
+     * @return array
+     */
+    public function updateUser(int $id, array $data): array
+    {
+        try {
+            $user = $this->userModalInstance::find($id);
+            if (!$user) {
+                return [
+                    'status' => Constant::STATUS_FALSE,
+                    'message' => 'User not found',
+                ];
+            }
+
+            $user->update($data);
+
+            return [
+                'status' => Constant::STATUS_TRUE,
+                'message' => 'User updated successfully'
+            ];
+        } catch (\Exception $exception) {
+            Log::error($exception);
+
+            return [
+                'status' => Constant::STATUS_FALSE,
+                'message' => 'Something went wrong'
+            ];
+        }
+    }
+}
+```
+### **Interface** (`UserRepositoryInterface.php`)
+
+```php
+namespace App\Repositories;
+
+interface UserRepositoryInterface
+{
+    public function findById(int $id);
+    public function updateUser(int $id, array $data);
+}
+```

@@ -1,0 +1,22 @@
+---
+description: Follow these rules when working on the frontend.
+globs: 
+alwaysApply: false
+---
+### Frontend Stack
+
+-   **CSS Framework**: Tailwind CSS
+-   **JavaScript Library**: jQuery
+
+### Project Setup
+
+When creating a frontend or Blade-based UI, always assume Tailwind CSS is used for styling.
+
+Make sure Tailwind CSS is installed and configured:
+
+- Run: `npm install -D tailwindcss postcss autoprefixer`
+- Initialize Tailwind: `npx tailwindcss init -p`
+- Update `tailwind.config.js` content path:
+```js
+content: ["./resources/**/*.blade.php", "./resources/**/*.js", "./resources/**/*.vue"],
+```

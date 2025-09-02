@@ -1,0 +1,47 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## General Rules
+
+### Project Description
+
+This project follows the **Laravel framework (12)** to build a scalable, secure, and high-performance web application. It implements a structured **Repository Pattern** to separate business logic from controllers, ensuring maintainability and testability.  
+
+### Tech Stack & Dependencies
+
+- **Framework**: Laravel 12 
+- **PHP Version**: 8.2+  
+- **Database**: MySQL
+- **ORM**: Eloquent  
+- **Queue Management**: Laravel Queues (default driver)  
+- **Authentication**: Laravel Sanctum
+- **Testing**: Pest  
+- **Deployment**: Nginx, Supervisor, Docker (if applicable)  
+- **Package Manager**: Composer  
+- **Frontend**: Blade with Tailwind CSS and jQuery  
+
+---
+
+### Coding Standards & Conventions
+
+#### General Guidelines
+- Follow **PSR-12** coding standards and **PSR-4** autoloading for class structure.
+- Always **type hint** function parameters and return values.
+- Use meaningful **variable and function names** (avoid single-letter variables except in loops).
+- Avoid **magic numbers and strings**; use constants or configuration files instead.
+- **Comment your code** properly using PHPDoc.
+
+#### Naming Conventions
+- Use **camelCase** for variables and method names.
+- Use **PascalCase** for class names.
+- Use **snake_case** for database column names.
+- Prefix interfaces with `Interface` (e.g., `UserRepositoryInterface`).
+- Prefix traits with `Trait` (e.g., `HasRolesTrait`).
+
+#### Controller Best Practices
+- Keep controllers clean by following **Separation of Concerns**.
+- Controllers should only handle **HTTP requests and responses**.
+- Use **Repository Pattern** to separate database queries from controllers.
+- Use **Form Requests** for input validation.

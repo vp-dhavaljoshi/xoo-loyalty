@@ -1,0 +1,11 @@
+---
+description: Follow this rule when working on database
+globs: 
+---
+-   Use **descriptive column names**.
+-   Always use **foreign keys** with cascade delete to maintain integrity.
+-   Use **Eloquent relationships** instead of manual joins.
+-   Use `SoftDeletes` for models that require data recovery.
+-   Keep migrations clean and avoid modifying existing ones in production.
+-   Seeders and Factories should be used for testing and development.
+-   Use **database transactions** for operations requiring rollback.

@@ -1,0 +1,23 @@
+---
+description: Follow this rules when working on error handling
+globs: 
+alwaysApply: false
+---
+
+-   Use **try-catch blocks** for handling exceptions:
+
+    ```php
+    try {
+        $user = User::findOrFail($id);
+    } catch (\Exception $exception) {
+        Log::error($exception);
+    }
+    ```
+
+-   Use **Laravel's Exception Handler** in `app/Exceptions/Handler.php` for global error handling.
+-   Use `abort(404, 'Not Found')` for handling missing resources.
+-   Return JSON responses for API errors:
+
+    ```php
+    return response()->json(['message' => 'Something went wrong'], 500);
+    ```

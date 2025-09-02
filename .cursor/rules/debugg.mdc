@@ -1,0 +1,15 @@
+---
+description: Follow this rules when working on debugging & logging
+globs: 
+---
+-   Use **Laravel Telescope** (only in local environment).
+-   Never enable `APP_DEBUG=true` in production.
+-   Use **Monolog** for structured logging.
+-   Log API requests for debugging:
+
+    ```
+    Log::info('API Request', ['user_id' => auth()->id(), 'request' => request()->all()]);
+
+    ```
+
+-   Store logs in separate files for easier debugging (`storage/logs/laravel.log`).

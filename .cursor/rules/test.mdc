@@ -1,0 +1,17 @@
+---
+description: Follow this rules when working on unit testing
+globs: 
+---
+-   Write **unit tests** and **feature tests** using PHPUnit.
+-   Use **Laravel Dusk** for browser testing.
+-   Mock external dependencies to speed up tests.
+-   Follow **Test-Driven Development (TDD)** where possible.
+-   Maintain a high **test coverage percentage**.
+-   Run tests before pushing changes using:
+
+    ```
+    php artisan test
+
+    ```
+
+-   Use **PHPStan** or **Laravel Pint** for static code analysis.

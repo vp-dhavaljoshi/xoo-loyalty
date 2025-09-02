@@ -1,0 +1,11 @@
+---
+description: Follow this rules when working on API
+globs: 
+---
+-   Prefix API routes with `/api/v1/` for versioning.
+-   Use standardized **success & error responses**.
+-   Implement **API Resources** to format responses.
+-   Use **Laravel Sanctum** or **Passport** for API authentication.
+-   Use rate limiting (`throttle:60,1`) to prevent abuse.
+-   Return proper HTTP status codes (e.g., `200 OK`, `400 Bad Request`, `404 Not Found`).
+-   Document APIs using **Swagger (L5 Swagger package)** or Postman collections.

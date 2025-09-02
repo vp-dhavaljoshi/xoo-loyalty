@@ -1,0 +1,16 @@
+---
+description: Follow this rules when working on code review and collaboration
+globs: 
+---
+
+-   Follow **Git Flow** for version control (feature branches, PR reviews).
+-   Use meaningful commit messages:
+
+    ```
+    git commit -m "[Feature] Implement user authentication"
+
+    ```
+
+-   Create **Pull Requests (PRs)** and get them reviewed before merging.
+-   Follow **coding standards** and avoid unnecessary complexity.
+-   Use **Laravel Pint** for auto-formatting PHP code.

@@ -1,0 +1,10 @@
+---
+description: Follow this rules when working on auth
+globs: 
+---
+-   Use **Laravel Sanctum** for API authentication.
+-   Always validate user input using **Form Requests** or `Validator`.
+-   Use **CSRF protection** (`@csrf` in forms).
+-   Store passwords using **hashing** or **md5**.
+-   Never expose `.env` file or commit it to version control.
+-   Use **Laravel Policies & Gates** for authorization.
