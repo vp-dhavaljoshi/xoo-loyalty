@@ -1,7 +1,7 @@
 import { AdminLayout } from '@/Layouts/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, TrendingUp, ArrowRight, BarChart3, Mail, Trophy } from 'lucide-react';
+import { Users, TrendingUp, ArrowRight, BarChart3, Mail, Trophy, Gift } from 'lucide-react';
 import { router } from '@inertiajs/react';
 
 export default function Dashboard() {
@@ -48,6 +48,7 @@ export default function Dashboard() {
   const navigateToCustomers = () => router.visit('/admin/customers');
   const navigateToRules = () => router.visit('/admin/rules');
   const navigateToCampaigns = () => router.visit('/admin/campaigns');
+  const navigateToRewards = () => router.visit('/admin/rewards');
   const navigateToSettings = () => router.visit('/admin/settings');
 
   return (
@@ -151,11 +152,11 @@ export default function Dashboard() {
               <Button 
                 variant="outline" 
                 className="w-full justify-between hover-lift transition-all duration-smooth"
-                onClick={navigateToSettings}
+                onClick={navigateToRewards}
               >
                 <span className="flex items-center gap-2">
-                  <Trophy className="h-4 w-4" />
-                  Adjust Settings
+                  <Gift className="h-4 w-4" />
+                  Manage Rewards
                 </span>
                 <ArrowRight className="h-4 w-4" />
               </Button>

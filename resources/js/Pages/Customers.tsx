@@ -190,16 +190,16 @@ export default function Customers() {
           <CardContent className="p-6">
             <div className="space-y-4">
               {/* Search and Export Row */}
-              <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
                 <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
                     placeholder="Search customers by name or email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
+                  className="pl-10"
+                />
+              </div>
                 
                 <Button 
                   variant="outline" 
@@ -207,16 +207,16 @@ export default function Customers() {
                   className="flex items-center gap-2"
                 >
                   <Filter className="h-4 w-4" />
-                  Filters
+                Filters
                   {hasActiveFilters && (
                     <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
                       {[searchTerm, statusFilter, dateFilter].filter(f => f !== 'All' && f !== '').length}
                     </span>
                   )}
-                </Button>
+              </Button>
                 
-                <Button variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
+              <Button variant="outline">
+                <Download className="h-4 w-4 mr-2" />
                   Export CSV
                 </Button>
               </div>
@@ -266,7 +266,7 @@ export default function Customers() {
                         >
                           <X className="h-4 w-4 mr-2" />
                           Clear Filters
-                        </Button>
+              </Button>
                       </div>
                     </div>
                   </div>
@@ -283,7 +283,7 @@ export default function Customers() {
             {hasActiveFilters && (
               <CardDescription className="text-blue-600">
                 Showing {filteredCustomers.length} of {customers.length} customers
-              </CardDescription>
+            </CardDescription>
             )}
           </CardHeader>
           <CardContent>
@@ -427,7 +427,7 @@ export default function Customers() {
                                   </Button>
                                   <Button onClick={handlePointsAdjustment}>
                                     Apply Adjustment
-                                  </Button>
+                        </Button>
                                 </div>
                               </div>
                             </DialogContent>
