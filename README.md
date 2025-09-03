@@ -23,13 +23,6 @@ A comprehensive customer loyalty program management system built with Laravel 12
 -   **ROI Analysis**: Measure program return on investment
 -   **Growth Metrics**: Track program growth and expansion metrics
 
-### User Experience
-
--   **Modern Admin Interface**: Clean, intuitive dashboard built with React and Tailwind CSS
--   **Responsive Design**: Fully responsive interface that works on all devices
--   **Real-time Updates**: Live data updates and notifications
--   **Advanced UI Components**: Built with Radix UI and shadcn/ui components
-
 ## 🛠️ Tech Stack
 
 ### Backend
@@ -90,19 +83,13 @@ Before you begin, ensure you have the following installed:
     php artisan key:generate
     ```
 
-5. **Database configuration**
-
-    - Update your `.env` file with database credentials
-    - For SQLite (default): `touch database/database.sqlite`
-    - For MySQL: Create a database and update connection details
-
-6. **Run database migrations**
+5. **Run database migrations**
 
     ```bash
     php artisan migrate
     ```
 
-7. **Build frontend assets**
+6. **Build frontend assets**
     ```bash
     npm run build
     ```
