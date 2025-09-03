@@ -26,7 +26,20 @@ interface Reward {
   imageUrl?: string;
 }
 
-export default function Rewards() {
+interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+interface RewardsProps {
+  auth: {
+    user: User | null;
+  };
+}
+
+export default function Rewards({ auth }: RewardsProps) {
   const [activeTab, setActiveTab] = useState('overview');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -235,7 +248,7 @@ export default function Rewards() {
   ];
 
   return (
-    <AdminLayout>
+    <AdminLayout auth={auth}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">

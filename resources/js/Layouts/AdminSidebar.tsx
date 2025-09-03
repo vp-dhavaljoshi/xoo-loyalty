@@ -14,7 +14,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Separator } from '@/components/ui/separator';
 
 const navigationItems = [
-  { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+  { title: 'Dashboard', url: '/admin/dashboard', icon: LayoutDashboard },
   { title: 'Customers', url: '/admin/customers', icon: Users },
   { title: 'Rules Engine', url: '/admin/rules', icon: Zap },
   { title: 'Campaigns', url: '/admin/campaigns', icon: Mail },
@@ -36,8 +36,8 @@ export const AdminSidebar = () => {
   const { url } = usePage();
   
   const isActive = (itemUrl: string) => {
-    if (itemUrl === '/dashboard') {
-      return url === '/dashboard';
+    if (itemUrl === '/admin/dashboard') {
+      return url === '/admin/dashboard';
     }
     return url.startsWith(itemUrl);
   };

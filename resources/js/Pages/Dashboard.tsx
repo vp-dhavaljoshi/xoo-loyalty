@@ -2,9 +2,38 @@ import { AdminLayout } from '@/Layouts/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Users, TrendingUp, ArrowRight, BarChart3, Mail, Trophy, Gift } from 'lucide-react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
+import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
 
-export default function Dashboard() {
+interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+interface DashboardProps {
+  auth: {
+    user: User | null;
+  };
+}
+
+export default function Dashboard({ auth }: DashboardProps) {
+  const { toast } = useToast();
+  const { props } = usePage();
+  
+  // Show success message if redirected from login
+  useEffect(() => {
+    if (props.flash?.success) {
+      toast({
+        title: "Success!",
+        description: props.flash.success,
+        variant: "success",
+      });
+    }
+  }, [props.flash?.success, toast]);
+
   const stats = [
     {
       title: 'Total Members',
@@ -52,7 +81,7 @@ export default function Dashboard() {
   const navigateToSettings = () => router.visit('/admin/settings');
 
   return (
-    <AdminLayout>
+    <AdminLayout auth={auth}>
       <div className="space-y-8">
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6">
           <div className="space-y-2">

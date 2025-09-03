@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'xoo-loyalty'),
 
     /*
     |--------------------------------------------------------------------------
@@ -53,6 +53,17 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Main System Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for the main system integration
+    |
+    */
+
+    'main_domain' => env('MAIN_DOMAIN', 'http://localhost'),
 
     /*
     |--------------------------------------------------------------------------

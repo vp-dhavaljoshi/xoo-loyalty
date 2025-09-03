@@ -12,11 +12,14 @@ import Campaigns from './Pages/Campaigns';
 import Rewards from './Pages/Rewards';
 import Settings from './Pages/Settings';
 import ParticipationReport from './Pages/Reports/Participation';
+import Home from './Pages/Home';
+import { Toaster } from './components/ui/toaster';
 
-const appName = (import.meta as any).env?.VITE_APP_NAME || 'Laravel';
+const appName = (import.meta as any).env?.VITE_APP_NAME || 'xoo-loyalty';
 
 // Page component mapping
 const pages = {
+  Home,
   Dashboard,
   Customers,
   Rules,
@@ -37,7 +40,12 @@ createInertiaApp({
     },
     setup({ el, App, props }) {
         const root = createRoot(el);
-        root.render(<App {...props} />);
+        root.render(
+            <>
+                <App {...props} />
+                <Toaster />
+            </>
+        );
     },
     progress: {
         color: '#4B5563',

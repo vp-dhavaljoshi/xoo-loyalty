@@ -17,7 +17,20 @@ import {
   TrendingUp
 } from 'lucide-react';
 
-export default function Settings() {
+interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+interface SettingsProps {
+  auth: {
+    user: User | null;
+  };
+}
+
+export default function Settings({ auth }: SettingsProps) {
   const [settings, setSettings] = useState({
     // Module Configuration
     loyaltyModuleEnabled: true,
@@ -54,7 +67,7 @@ export default function Settings() {
   };
 
   return (
-    <AdminLayout>
+    <AdminLayout auth={auth}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">

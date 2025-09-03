@@ -2,15 +2,33 @@
 import React from 'react';
 import { AdminSidebar } from './AdminSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { Menu, User } from 'lucide-react';
+import { Menu, User, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { usePage } from '@inertiajs/react';
+import { usePage, router } from '@inertiajs/react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
 
 interface AdminLayoutProps {
   children: React.ReactNode;
+  auth?: {
+    user: User | null;
+  };
 }
 
-export const AdminLayout = ({ children }: AdminLayoutProps) => {
+export const AdminLayout = ({ children, auth }: AdminLayoutProps) => {
   const { url } = usePage();
   
   // Get page title based on current URL
@@ -23,6 +41,10 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
     if (url === '/admin/settings') return 'Settings';
     if (url.includes('/admin/reports/')) return 'Reports';
     return 'Dashboard';
+  };
+
+  const handleLogout = () => {
+    router.post('/logout');
   };
 
   return (
@@ -49,10 +71,39 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
               <Button className="bg-white/10 hover:bg-white/20 text-header-foreground border-0 text-sm">
                 Online Ordering
               </Button>
-              <div className="flex items-center gap-2 text-header-foreground">
-                <User className="h-5 w-5" />
-                <span className="text-sm">Hi, Admin User</span>
-              </div>
+              
+              {/* User Profile Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    className="flex items-center gap-2 text-header-foreground hover:bg-white/10 border-0 p-2"
+                  >
+                    <User className="h-5 w-5" />
+                    <span className="text-sm">
+                      {auth?.user ? `${auth.user.first_name} ${auth.user.last_name}` : 'Admin User'}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    {auth?.user ? `${auth.user.first_name} ${auth.user.last_name}` : 'Admin User'}
+                  </DropdownMenuLabel>
+                  <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+                    {auth?.user?.email || 'admin@example.com'}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => router.visit('/admin/settings')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
 

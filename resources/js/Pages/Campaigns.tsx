@@ -26,7 +26,20 @@ interface Campaign {
   customerGroup: string;
 }
 
-export default function Campaigns() {
+interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+interface CampaignsProps {
+  auth: {
+    user: User | null;
+  };
+}
+
+export default function Campaigns({ auth }: CampaignsProps) {
   const [activeTab, setActiveTab] = useState('overview');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -203,7 +216,7 @@ export default function Campaigns() {
   ];
 
   return (
-    <AdminLayout>
+    <AdminLayout auth={auth}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">

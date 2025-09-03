@@ -20,7 +20,20 @@ interface Rule {
   createdAt: string;
 }
 
-export default function Rules() {
+interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+interface RulesProps {
+  auth: {
+    user: User | null;
+  };
+}
+
+export default function Rules({ auth }: RulesProps) {
   const [activeTab, setActiveTab] = useState('all');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -168,7 +181,7 @@ export default function Rules() {
   };
 
   return (
-    <AdminLayout>
+    <AdminLayout auth={auth}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">

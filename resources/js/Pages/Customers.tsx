@@ -37,7 +37,20 @@ interface Transaction {
   description: string;
 }
 
-export default function Customers() {
+interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+interface CustomersProps {
+  auth: {
+    user: User | null;
+  };
+}
+
+export default function Customers({ auth }: CustomersProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Inactive'>('All');
   const [dateFilter, setDateFilter] = useState<'All' | 'Last 30 days' | 'Last 90 days' | 'Last year'>('All');
@@ -173,7 +186,7 @@ export default function Customers() {
   const hasActiveFilters = searchTerm || statusFilter !== 'All' || dateFilter !== 'All';
 
   return (
-    <AdminLayout>
+    <AdminLayout auth={auth}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
