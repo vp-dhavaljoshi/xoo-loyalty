@@ -207,11 +207,11 @@ export default function Campaigns() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Campaigns</h1>
-            <p className="text-muted-foreground">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Campaigns</h1>
+          <p className="text-muted-foreground">
               Create and manage marketing campaigns for your loyalty program
-            </p>
+          </p>
           </div>
           <Button onClick={() => setShowCreateDialog(true)} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
@@ -279,13 +279,13 @@ export default function Campaigns() {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
+        <Card>
+          <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="h-5 w-5" />
                     Top Performer
                   </CardTitle>
-                </CardHeader>
+          </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="space-y-2">
                     <h4 className="font-semibold">Welcome Email Series</h4>
@@ -381,8 +381,8 @@ export default function Campaigns() {
                           </Button>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+          </CardContent>
+        </Card>
                 ))}
               </div>
             </div>
