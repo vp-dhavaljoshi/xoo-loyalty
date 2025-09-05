@@ -13,27 +13,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
-interface User {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-}
+import { PermissionGate } from '../components/PermissionGate';
+import { PERMISSIONS, useAuth } from '../contexts/AuthContext';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
-  auth?: {
-    user: User | null;
-  };
 }
 
-export const AdminLayout = ({ children, auth }: AdminLayoutProps) => {
+export const AdminLayout = ({ children }: AdminLayoutProps) => {
+
+  const { user } = useAuth();
   const { url } = usePage();
   
   // Get page title based on current URL
   const getPageTitle = () => {
-    if (url === '/dashboard') return 'Dashboard';
+    if (url === '/admin/dashboard') return 'Dashboard';
     if (url === '/admin/customers') return 'Customer Management';
     if (url === '/admin/rules') return 'Rules Engine';
     if (url === '/admin/campaigns') return 'Campaigns';
@@ -81,23 +75,25 @@ export const AdminLayout = ({ children, auth }: AdminLayoutProps) => {
                   >
                     <User className="h-5 w-5" />
                     <span className="text-sm">
-                      {auth?.user ? `${auth.user.first_name} ${auth.user.last_name}` : 'Admin User'}
+                      {user ? `${user.first_name} ${user.last_name}` : 'Admin User'}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>
-                    {auth?.user ? `${auth.user.first_name} ${auth.user.last_name}` : 'Admin User'}
+                    {user ? `${user.first_name} ${user.last_name}` : 'Admin User'}
                   </DropdownMenuLabel>
                   <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
-                    {auth?.user?.email || 'admin@example.com'}
+                    {user?.email || 'admin@example.com'}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.visit('/admin/settings')}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+                  <PermissionGate permission={PERMISSIONS.SETTINGS_VIEW}>
+                    <DropdownMenuItem onClick={() => router.visit('/admin/settings')}>
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </PermissionGate>
                   <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Logout</span>

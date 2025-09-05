@@ -25,12 +25,10 @@ interface User {
 }
 
 interface SettingsProps {
-  auth: {
-    user: User | null;
-  };
+  // No longer need auth prop - using context
 }
 
-export default function Settings({ auth }: SettingsProps) {
+export default function Settings({}: SettingsProps) {
   const [settings, setSettings] = useState({
     // Module Configuration
     loyaltyModuleEnabled: true,
@@ -67,7 +65,7 @@ export default function Settings({ auth }: SettingsProps) {
   };
 
   return (
-    <AdminLayout auth={auth}>
+    <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">

@@ -5,5 +5,5 @@ use Inertia\Inertia;
 
 // Campaign Management Routes
 Route::get('/campaigns', function () {
-    return Inertia::render('Campaigns', getLoginUserArray());
-})->name('campaigns');
+    return Inertia::render('Campaigns');
+})->middleware(['auth.custom', 'permission:campaigns.view'])->name('campaigns');

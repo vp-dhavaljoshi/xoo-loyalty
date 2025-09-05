@@ -12,8 +12,7 @@ Route::get('/', function () {
     
     // If not authenticated, show home page
     return Inertia::render('Home', [
-        'error' => session('error'),
-        getLoginUserArray()
+        'error' => session('error')
     ]);
 })->name('home');
 
@@ -33,3 +32,9 @@ require __DIR__.'/profile.php';
 
 // Include auth routes
 require __DIR__.'/auth.php';
+
+// Include debug routes (REMOVE IN PRODUCTION)
+if (app()->environment('local', 'development')) {
+    require __DIR__.'/debug.php';
+}
+

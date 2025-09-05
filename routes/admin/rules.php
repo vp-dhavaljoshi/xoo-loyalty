@@ -5,5 +5,5 @@ use Inertia\Inertia;
 
 // Rules Engine Routes
 Route::get('/rules', function () {
-    return Inertia::render('Rules', getLoginUserArray());
-})->name('rules');
+    return Inertia::render('Rules');
+})->middleware(['auth.custom', 'permission:rules.view'])->name('rules');

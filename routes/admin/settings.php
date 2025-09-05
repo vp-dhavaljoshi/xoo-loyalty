@@ -5,5 +5,5 @@ use Inertia\Inertia;
 
 // System Settings Routes
 Route::get('/settings', function () {
-    return Inertia::render('Settings', getLoginUserArray());
-})->name('settings');
+    return Inertia::render('Settings');
+})->middleware(['auth.custom', 'permission:loyalty-settings.view'])->name('settings');

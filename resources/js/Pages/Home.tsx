@@ -27,6 +27,7 @@ import {
     User,
     Settings
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface User {
     id: number;
@@ -37,12 +38,10 @@ interface User {
 
 interface HomeProps {
     error?: string;
-    auth: {
-        user: User | null;
-    };
 }
 
-export default function Home({ error, auth }: HomeProps) {
+export default function Home({ error }: HomeProps) {
+    const { user } = useAuth();
     const handleLogout = () => {
         router.post('/logout');
     };
@@ -94,7 +93,7 @@ export default function Home({ error, auth }: HomeProps) {
                                 </h1>
                             </div>
                             
-                            {auth.user ? (
+                            {user ? (
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button 
@@ -103,16 +102,16 @@ export default function Home({ error, auth }: HomeProps) {
                                         >
                                             <User className="h-4 w-4" />
                                             <span className="text-sm font-medium">
-                                                {auth.user.first_name} {auth.user.last_name}
+                                                {user.first_name} {user.last_name}
                                             </span>
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" className="w-56">
                                         <DropdownMenuLabel>
-                                            {auth.user.first_name} {auth.user.last_name}
+                                            {user.first_name} {user.last_name}
                                         </DropdownMenuLabel>
                                         <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
-                                            {auth.user.email}
+                                            {user.email}
                                         </DropdownMenuLabel>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem onClick={() => router.visit('/admin/settings')}>

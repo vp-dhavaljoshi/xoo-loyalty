@@ -28,12 +28,10 @@ interface User {
 }
 
 interface RulesProps {
-  auth: {
-    user: User | null;
-  };
+  // No longer need auth prop - using context
 }
 
-export default function Rules({ auth }: RulesProps) {
+export default function Rules({}: RulesProps) {
   const [activeTab, setActiveTab] = useState('all');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -181,7 +179,7 @@ export default function Rules({ auth }: RulesProps) {
   };
 
   return (
-    <AdminLayout auth={auth}>
+    <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">

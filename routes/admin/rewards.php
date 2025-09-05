@@ -5,5 +5,5 @@ use Inertia\Inertia;
 
 // Rewards Catalog Routes
 Route::get('/rewards', function () {
-    return Inertia::render('Rewards', getLoginUserArray());
-})->name('rewards');
+    return Inertia::render('Rewards');
+})->middleware(['auth.custom', 'permission:rewards.view'])->name('rewards');

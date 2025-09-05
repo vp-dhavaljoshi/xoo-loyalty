@@ -20,6 +20,8 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { PermissionGate } from '@/components/PermissionGate';
+import { PERMISSIONS } from '@/contexts/AuthContext';
 
 interface Customer {
   id: number;
@@ -45,12 +47,10 @@ interface User {
 }
 
 interface CustomersProps {
-  auth: {
-    user: User | null;
-  };
+  // No longer need auth prop - using context
 }
 
-export default function Customers({ auth }: CustomersProps) {
+export default function Customers({}: CustomersProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Inactive'>('All');
   const [dateFilter, setDateFilter] = useState<'All' | 'Last 30 days' | 'Last 90 days' | 'Last year'>('All');
@@ -159,11 +159,20 @@ export default function Customers({ auth }: CustomersProps) {
 
   const handlePointsAdjustment = () => {
     // Here you would typically make an API call to adjust points
-    console.log('Adjusting points:', {
-      customer: selectedCustomer?.name,
-      points: pointsToAdjust,
-      reason: adjustmentReason
-    });
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Adjusting points:', {
+        customer: selectedCustomer?.name,
+        points: pointsToAdjust,
+        reason: adjustmentReason
+      });
+    }
+    
+    // TODO: Implement API call to adjust customer points
+    // router.post('/admin/customers/adjust-points', { 
+    //   customer_id: selectedCustomer?.id, 
+    //   points: pointsToAdjust, 
+    //   reason: adjustmentReason 
+    // });
     
     // Reset form and close modal
     setPointsToAdjust('');
@@ -186,7 +195,7 @@ export default function Customers({ auth }: CustomersProps) {
   const hasActiveFilters = searchTerm || statusFilter !== 'All' || dateFilter !== 'All';
 
   return (
-    <AdminLayout auth={auth}>
+    <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -228,10 +237,12 @@ export default function Customers({ auth }: CustomersProps) {
                   )}
               </Button>
                 
-              <Button variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                  Export CSV
-                </Button>
+              <PermissionGate permission={PERMISSIONS.CUSTOMERS_EXPORT}>
+                <Button variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
+                    Export CSV
+                  </Button>
+                </PermissionGate>
               </div>
 
               {/* Advanced Filters */}
@@ -389,18 +400,20 @@ export default function Customers({ auth }: CustomersProps) {
 
                           {/* Arrow icon - Manual Points Adjustment */}
                           <Dialog open={showPointsAdjustment} onOpenChange={setShowPointsAdjustment}>
-                            <DialogTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedCustomer(customer);
-                                  setShowPointsAdjustment(true);
-                                }}
-                              >
-                                <TrendingUp className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
+                            <PermissionGate permission={PERMISSIONS.CUSTOMERS_ADJUST_POINTS}>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedCustomer(customer);
+                                    setShowPointsAdjustment(true);
+                                  }}
+                                >
+                                  <TrendingUp className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                            </PermissionGate>
                             <DialogContent>
                               <DialogHeader>
                                 <DialogTitle>Manual Points Adjustment</DialogTitle>

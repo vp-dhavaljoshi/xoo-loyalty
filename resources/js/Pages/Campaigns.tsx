@@ -34,12 +34,10 @@ interface User {
 }
 
 interface CampaignsProps {
-  auth: {
-    user: User | null;
-  };
+  // No longer need auth prop - using context
 }
 
-export default function Campaigns({ auth }: CampaignsProps) {
+export default function Campaigns({}: CampaignsProps) {
   const [activeTab, setActiveTab] = useState('overview');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -216,7 +214,7 @@ export default function Campaigns({ auth }: CampaignsProps) {
   ];
 
   return (
-    <AdminLayout auth={auth}>
+    <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">

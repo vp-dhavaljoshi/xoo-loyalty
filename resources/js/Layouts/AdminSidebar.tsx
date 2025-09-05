@@ -12,32 +12,99 @@ import {
 import { Link, usePage } from '@inertiajs/react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
+import { useAuth, PERMISSIONS, MODULES } from '../contexts/AuthContext';
+import { PermissionGate } from '../components/PermissionGate';
 
 const navigationItems = [
-  { title: 'Dashboard', url: '/admin/dashboard', icon: LayoutDashboard },
-  { title: 'Customers', url: '/admin/customers', icon: Users },
-  { title: 'Rules Engine', url: '/admin/rules', icon: Zap },
-  { title: 'Campaigns', url: '/admin/campaigns', icon: Mail },
-  { title: 'Rewards Catalog', url: '/admin/rewards', icon: Gift },
-  { title: 'Settings', url: '/admin/settings', icon: Settings },
+  { 
+    title: 'Dashboard', 
+    url: '/admin/dashboard', 
+    icon: LayoutDashboard, 
+    permission: PERMISSIONS.DASHBOARD_VIEW,
+    module: MODULES.DASHBOARD
+  },
+  { 
+    title: 'Customers', 
+    url: '/admin/customers', 
+    icon: Users, 
+    permission: PERMISSIONS.CUSTOMERS_VIEW,
+    module: MODULES.CUSTOMERS
+  },
+  { 
+    title: 'Rules Engine', 
+    url: '/admin/rules', 
+    icon: Zap, 
+    permission: PERMISSIONS.RULES_VIEW,
+    module: MODULES.RULES
+  },
+  { 
+    title: 'Campaigns', 
+    url: '/admin/campaigns', 
+    icon: Mail, 
+    permission: PERMISSIONS.CAMPAIGNS_VIEW,
+    module: MODULES.CAMPAIGNS
+  },
+  { 
+    title: 'Rewards Catalog', 
+    url: '/admin/rewards', 
+    icon: Gift, 
+    permission: PERMISSIONS.REWARDS_VIEW,
+    module: MODULES.REWARDS
+  },
+  { 
+    title: 'Settings', 
+    url: '/admin/settings', 
+    icon: Settings, 
+    permission: PERMISSIONS.SETTINGS_VIEW,
+    module: MODULES.SETTINGS
+  },
 ];
 
 const reportItems = [
-  { title: 'Participation Report', url: '/admin/reports/participation' },
-  { title: 'Points Report', url: '/admin/reports/points' },
-  { title: 'Redemption Report', url: '/admin/reports/redemption' },
-  { title: 'Membership Report', url: '/admin/reports/membership' },
-  { title: 'Segmentation Report', url: '/admin/reports/segmentation' },
-  { title: 'ROI Report', url: '/admin/reports/roi' },
-  { title: 'Growth Report', url: '/admin/reports/growth' },
+  { 
+    title: 'Participation Report', 
+    url: '/admin/reports/participation',
+    permission: PERMISSIONS.REPORTS_VIEW
+  },
+  { 
+    title: 'Points Report', 
+    url: '/admin/reports/points',
+    permission: PERMISSIONS.REPORTS_VIEW
+  },
+  { 
+    title: 'Redemption Report', 
+    url: '/admin/reports/redemption',
+    permission: PERMISSIONS.REPORTS_VIEW
+  },
+  { 
+    title: 'Membership Report', 
+    url: '/admin/reports/membership',
+    permission: PERMISSIONS.REPORTS_VIEW
+  },
+  { 
+    title: 'Segmentation Report', 
+    url: '/admin/reports/segmentation',
+    permission: PERMISSIONS.REPORTS_VIEW
+  },
+  { 
+    title: 'ROI Report', 
+    url: '/admin/reports/roi',
+    permission: PERMISSIONS.REPORTS_VIEW
+  },
+  { 
+    title: 'Growth Report', 
+    url: '/admin/reports/growth',
+    permission: PERMISSIONS.REPORTS_VIEW
+  },
 ];
 
 export const AdminSidebar = () => {
   const { url } = usePage();
+  const { hasPermission } = useAuth();
   
   const isActive = (itemUrl: string) => {
-    if (itemUrl === '/admin/dashboard') {
-      return url === '/admin/dashboard';
+    if (itemUrl === '/dashboard') {
+      return url === '/dashboard';
     }
     return url.startsWith(itemUrl);
   };
@@ -65,6 +132,12 @@ export const AdminSidebar = () => {
         <div className="p-4 space-y-1">
           {navigationItems.map((item) => {
             const active = isActive(item.url);
+            const hasAccess = hasPermission(item.permission);
+            
+            if (!hasAccess) {
+              return null; // Don't render items user doesn't have permission for
+            }
+            
             return (
               <div key={item.title}>
                 <Link 
@@ -83,38 +156,42 @@ export const AdminSidebar = () => {
           })}
           
           {/* Reports Section with Submenu */}
-          <div>
-            <Collapsible defaultOpen className="group/collapsible">
-              <CollapsibleTrigger asChild>
-                <button className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground w-full text-left">
-                  <FileBarChart className="h-4 w-4" />
-                  <span>Reports</span>
-                  <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                </button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="ml-4 space-y-1">
-                  {reportItems.map((report) => {
-                    const active = isActive(report.url);
-                    return (
-                      <div key={report.title}>
-                        <Link 
-                          href={report.url}
-                          className={`flex items-center gap-2 px-3 py-2 text-sm transition-all duration-200 rounded-md ${
-                            active 
-                              ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' 
-                              : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
-                          }`}
-                        >
-                          <span>{report.title}</span>
-                        </Link>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
+          <PermissionGate permission={PERMISSIONS.REPORTS_VIEW}>
+            <div>
+              <Collapsible defaultOpen className="group/collapsible">
+                <CollapsibleTrigger asChild>
+                  <button className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground w-full text-left">
+                    <FileBarChart className="h-4 w-4" />
+                    <span>Reports</span>
+                    <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                  </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="ml-4 space-y-1">
+                    {reportItems.map((report) => {
+                      const active = isActive(report.url);
+                      return (
+                        <PermissionGate key={report.title} permission={report.permission}>
+                          <div>
+                            <Link 
+                              href={report.url}
+                              className={`flex items-center gap-2 px-3 py-2 text-sm transition-all duration-200 rounded-md ${
+                                active 
+                                  ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' 
+                                  : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
+                              }`}
+                            >
+                              <span>{report.title}</span>
+                            </Link>
+                          </div>
+                        </PermissionGate>
+                      );
+                    })}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          </PermissionGate>
         </div>
       </div>
     </div>

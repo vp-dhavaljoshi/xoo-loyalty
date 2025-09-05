@@ -34,12 +34,10 @@ interface User {
 }
 
 interface RewardsProps {
-  auth: {
-    user: User | null;
-  };
+  // No longer need auth prop - using context
 }
 
-export default function Rewards({ auth }: RewardsProps) {
+export default function Rewards({}: RewardsProps) {
   const [activeTab, setActiveTab] = useState('overview');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -248,7 +246,7 @@ export default function Rewards({ auth }: RewardsProps) {
   ];
 
   return (
-    <AdminLayout auth={auth}>
+    <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">

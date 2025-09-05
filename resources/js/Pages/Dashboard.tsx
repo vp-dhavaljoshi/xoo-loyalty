@@ -5,6 +5,8 @@ import { Users, TrendingUp, ArrowRight, BarChart3, Mail, Trophy, Gift } from 'lu
 import { router, usePage } from '@inertiajs/react';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
+import { PermissionGate } from '@/components/PermissionGate';
+import { PERMISSIONS, useAuth } from '@/contexts/AuthContext';
 
 interface User {
   id: number;
@@ -14,14 +16,13 @@ interface User {
 }
 
 interface DashboardProps {
-  auth: {
-    user: User | null;
-  };
+  // Props are now handled globally by Inertia middleware
 }
 
-export default function Dashboard({ auth }: DashboardProps) {
+export default function Dashboard({}: DashboardProps) {
   const { toast } = useToast();
   const { props } = usePage();
+  const { user, setAuth } = useAuth();
   
   // Show success message if redirected from login
   useEffect(() => {
@@ -34,6 +35,7 @@ export default function Dashboard({ auth }: DashboardProps) {
     }
   }, [props.flash?.success, toast]);
 
+  // Auth data is now handled globally by Inertia middleware
   const stats = [
     {
       title: 'Total Members',
@@ -81,7 +83,7 @@ export default function Dashboard({ auth }: DashboardProps) {
   const navigateToSettings = () => router.visit('/admin/settings');
 
   return (
-    <AdminLayout auth={auth}>
+    <AdminLayout>
       <div className="space-y-8">
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6">
           <div className="space-y-2">
@@ -89,14 +91,18 @@ export default function Dashboard({ auth }: DashboardProps) {
             <p className="text-xl text-muted-foreground">Monitor your loyalty program performance and insights</p>
           </div>
           <div className="flex gap-3">
-            <Button className="btn-gradient" onClick={navigateToRules}>
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Manage Rules
-            </Button>
-            <Button variant="outline" className="hover-lift" onClick={navigateToCampaigns}>
-              <Mail className="h-4 w-4 mr-2" />
-              Manage Campaigns
-            </Button>
+            <PermissionGate permission={PERMISSIONS.RULES_VIEW}>
+              <Button className="btn-gradient" onClick={navigateToRules}>
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Manage Rules
+              </Button>
+            </PermissionGate>
+            <PermissionGate permission={PERMISSIONS.CAMPAIGNS_VIEW}>
+              <Button variant="outline" className="hover-lift" onClick={navigateToCampaigns}>
+                <Mail className="h-4 w-4 mr-2" />
+                Manage Campaigns
+              </Button>
+            </PermissionGate>
           </div>
         </div>
 
@@ -145,50 +151,61 @@ export default function Dashboard({ auth }: DashboardProps) {
           <div className="space-y-6 animate-scale-in" style={{ animationDelay: '0.2s' }}>
             <h3 className="text-2xl font-bold tracking-tight">Quick Actions</h3>
             <div className="space-y-3">
-              <Button 
-                variant="outline" 
-                className="w-full justify-between hover-lift transition-all duration-smooth"
-                onClick={navigateToCustomers}
-              >
-                <span className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  View All Customers
-                </span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full justify-between hover-lift transition-all duration-smooth"
-                onClick={navigateToRules}
-              >
-                <span className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4" />
-                  Create New Rule
-                </span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full justify-between hover-lift transition-all duration-smooth"
-                onClick={navigateToCampaigns}
-              >
-                <span className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  Launch Campaign
-                </span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full justify-between hover-lift transition-all duration-smooth"
-                onClick={navigateToRewards}
-              >
-                <span className="flex items-center gap-2">
-                  <Gift className="h-4 w-4" />
-                  Manage Rewards
-                </span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+              <PermissionGate permission={PERMISSIONS.CUSTOMERS_VIEW}>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-between hover-lift transition-all duration-smooth"
+                  onClick={navigateToCustomers}
+                >
+                  <span className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    View All Customers
+                  </span>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </PermissionGate>
+              
+              <PermissionGate permission={PERMISSIONS.RULES_CREATE}>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-between hover-lift transition-all duration-smooth"
+                  onClick={navigateToRules}
+                >
+                  <span className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4" />
+                    Create New Rule
+                  </span>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </PermissionGate>
+              
+              <PermissionGate permission={PERMISSIONS.CAMPAIGNS_CREATE}>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-between hover-lift transition-all duration-smooth"
+                  onClick={navigateToCampaigns}
+                >
+                  <span className="flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    Launch Campaign
+                  </span>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </PermissionGate>
+              
+              <PermissionGate permission={PERMISSIONS.REWARDS_VIEW}>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-between hover-lift transition-all duration-smooth"
+                  onClick={navigateToRewards}
+                >
+                  <span className="flex items-center gap-2">
+                    <Gift className="h-4 w-4" />
+                    Manage Rewards
+                  </span>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </PermissionGate>
             </div>
           </div>
         </div>

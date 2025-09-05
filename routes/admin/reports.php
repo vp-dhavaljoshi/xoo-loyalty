@@ -4,32 +4,32 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // Reports Routes
-Route::prefix('reports')->name('reports.')->group(function () {
+Route::prefix('reports')->name('reports.')->middleware(['auth.custom'])->group(function () {
     Route::get('/participation', function () {
-        return Inertia::render('Reports/Participation', getLoginUserArray());
-    })->name('participation');
+        return Inertia::render('Reports/Participation');
+    })->middleware('permission:loyalty-reports.view')->name('participation');
 
     Route::get('/points', function () {
-        return Inertia::render('Reports/Points', getLoginUserArray());
-    })->name('points');
+        return Inertia::render('Reports/Points');
+    })->middleware('permission:loyalty-reports.view')->name('points');
 
     Route::get('/redemption', function () {
-        return Inertia::render('Reports/Redemption', getLoginUserArray());
-    })->name('redemption');
+        return Inertia::render('Reports/Redemption');
+    })->middleware('permission:loyalty-reports.view')->name('redemption');
 
     Route::get('/membership', function () {
-        return Inertia::render('Reports/Membership', getLoginUserArray());
-    })->name('membership');
+        return Inertia::render('Reports/Membership');
+    })->middleware('permission:loyalty-reports.view')->name('membership');
 
     Route::get('/segmentation', function () {
-        return Inertia::render('Reports/Segmentation', getLoginUserArray());
-    })->name('segmentation');
+        return Inertia::render('Reports/Segmentation');
+    })->middleware('permission:loyalty-reports.view')->name('segmentation');
 
     Route::get('/roi', function () {
-        return Inertia::render('Reports/ROI', getLoginUserArray());
-    })->name('roi');
+        return Inertia::render('Reports/ROI');
+    })->middleware('permission:loyalty-reports.view')->name('roi');
 
     Route::get('/growth', function () {
-        return Inertia::render('Reports/Growth', getLoginUserArray());
-    })->name('growth');
+        return Inertia::render('Reports/Growth');
+    })->middleware('permission:loyalty-reports.view')->name('growth');
 });
