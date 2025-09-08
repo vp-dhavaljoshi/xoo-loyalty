@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '@/Layouts/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import {
   AlertTriangle,
   TrendingUp
 } from 'lucide-react';
+import axios from 'axios';
 
 interface User {
   id: number;
@@ -25,10 +26,11 @@ interface User {
 }
 
 interface SettingsProps {
-  // No longer need auth prop - using context
+  settings?: any;
+  settingsLoaded?: boolean;
 }
 
-export default function Settings({}: SettingsProps) {
+export default function Settings({ settings: initialSettings, settingsLoaded }: SettingsProps) {
   const [settings, setSettings] = useState({
     // Module Configuration
     loyaltyModuleEnabled: true,
@@ -51,18 +53,75 @@ export default function Settings({}: SettingsProps) {
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [saveMessage, setSaveMessage] = useState('');
+
+  // Load settings on component mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await axios.get('/admin/api/settings/');
+        if (response.data.status && response.data.data) {
+          setSettings(response.data.data);
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error);
+        // Use initial settings from props if API fails
+        if (initialSettings) {
+          setSettings(initialSettings);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (settingsLoaded && initialSettings) {
+      setSettings(initialSettings);
+      setIsLoading(false);
+    } else {
+      loadSettings();
+    }
+  }, [initialSettings, settingsLoaded]);
 
   const handleSave = async () => {
     setIsSaving(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSaving(false);
-    // Show success message or handle response
+    setSaveMessage('');
+    
+    try {
+      const response = await axios.put('/admin/api/settings/', {
+        settings: settings
+      });
+      
+      if (response.data.status) {
+        setSaveMessage('Settings saved successfully!');
+        setTimeout(() => setSaveMessage(''), 3000);
+      } else {
+        setSaveMessage('Failed to save settings: ' + response.data.message);
+      }
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      setSaveMessage('Error saving settings. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const updateSetting = (key: string, value: any) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading settings...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -75,14 +134,21 @@ export default function Settings({}: SettingsProps) {
               Configure your loyalty program settings
             </p>
           </div>
-          <Button 
-            onClick={handleSave} 
-            disabled={isSaving}
-            className="flex items-center gap-2"
-          >
-            <Save className="h-4 w-4" />
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </Button>
+          <div className="flex items-center gap-4">
+            {saveMessage && (
+              <p className={`text-sm ${saveMessage.includes('successfully') ? 'text-green-600' : 'text-red-600'}`}>
+                {saveMessage}
+              </p>
+            )}
+            <Button 
+              onClick={handleSave} 
+              disabled={isSaving}
+              className="flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
         </div>
 
         {/* Module Configuration */}

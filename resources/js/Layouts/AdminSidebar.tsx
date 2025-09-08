@@ -1,3 +1,4 @@
+import React from 'react';
 import { 
   LayoutDashboard, 
   Users, 
@@ -100,7 +101,27 @@ const reportItems = [
 
 export const AdminSidebar = () => {
   const { url } = usePage();
-  const { hasPermission } = useAuth();
+  const { hasPermission, permissions } = useAuth();
+  
+  // Debug logging
+  React.useEffect(() => {
+    console.log('AdminSidebar rendered:', {
+      permissions,
+      hasPermission,
+      url
+    });
+    if (process.env.NODE_ENV === 'development') {
+      console.log('AdminSidebar - Permissions:', permissions);
+      console.log('AdminSidebar - Permission checks:', {
+        dashboard: hasPermission('loyalty-dashboard.view'),
+        customers: hasPermission('loyalty-customers.view'),
+        rules: hasPermission('rules.view'),
+        campaigns: hasPermission('campaigns.view'),
+        rewards: hasPermission('rewards.view'),
+        settings: hasPermission('loyalty-settings.view')
+      });
+    }
+  }, [permissions, hasPermission]);
   
   const isActive = (itemUrl: string) => {
     if (itemUrl === '/dashboard') {
@@ -134,6 +155,12 @@ export const AdminSidebar = () => {
             const active = isActive(item.url);
             const hasAccess = hasPermission(item.permission);
             
+            // Debug logging
+            if (process.env.NODE_ENV === 'development') {
+              console.log(`Checking ${item.title}: permission=${item.permission}, hasAccess=${hasAccess}`);
+            }
+            
+            // Check permissions and hide items user doesn't have access to
             if (!hasAccess) {
               return null; // Don't render items user doesn't have permission for
             }

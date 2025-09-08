@@ -29,11 +29,11 @@ return [
 
     'csp_directives' => [
         'default-src' => "'self'",
-        'script-src' => "'self' 'unsafe-inline' 'unsafe-eval' https://fonts.bunny.net",
+        'script-src' => "'self' 'unsafe-inline' 'unsafe-eval' https://fonts.bunny.net http://xoo-loyalty.loc:5173 http://localhost:5173",
         'style-src' => "'self' 'unsafe-inline' https://fonts.bunny.net",
         'font-src' => "'self' https://fonts.bunny.net",
         'img-src' => "'self' data: https:",
-        'connect-src' => "'self'",
+        'connect-src' => "'self' http://xoo-loyalty.loc:5173 http://localhost:5173 ws://xoo-loyalty.loc:5173 ws://localhost:5173",
         'frame-ancestors' => "'none'",
     ],
 

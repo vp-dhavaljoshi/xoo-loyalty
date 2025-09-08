@@ -18,6 +18,7 @@ interface AuthContextType {
   permissions: string[];
   isAuthenticated: boolean;
   hasPermission: (permission: string) => boolean;
+  hasLoyaltyPermission: (permission: string) => boolean;
   hasModulePermission: (module: string, action?: string) => boolean;
   canAccessModule: (module: string) => boolean;
   getModulePermissions: (module: string) => string[];
@@ -32,6 +33,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children, auth }) => {
+  console.log('AuthProvider rendered:', auth);
   const [safeAuth, setSafeAuth] = useState<AuthData>(auth || {
     user: null,
     permissions: []
@@ -39,15 +41,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, auth }) =>
 
   // Update state when auth prop changes (on page navigation)
   React.useEffect(() => {
+    console.log('Auth context updated:', auth);
     if (auth) {
-      setSafeAuth(auth);
+      // Ensure permissions is always an array
+      const safeAuthData = {
+        user: auth.user,
+        permissions: Array.isArray(auth.permissions) ? auth.permissions : []
+      };
+      
+      setSafeAuth(safeAuthData);
+      
       if (process.env.NODE_ENV === 'development') {
-        console.log('Auth context updated:', auth);
+        console.log('Auth context updated:', {
+          user: safeAuthData.user,
+          permissionsCount: safeAuthData.permissions.length,
+          permissions: safeAuthData.permissions,
+          isAuthenticated: !!safeAuthData.user
+        });
       }
     }
   }, [auth]);
 
   const setAuth = (auth: AuthData) => {
+    console.log('setAuth called:', auth);
     setSafeAuth(auth);
   };
  
@@ -58,13 +74,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, auth }) =>
       }
       return false;
     }
-    return safeAuth.permissions.includes(permission);
+    
+    const hasAccess = safeAuth.permissions.includes(permission);
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`hasPermission(${permission}): ${hasAccess}`, {
+        permissions: safeAuth.permissions,
+        permission,
+        found: safeAuth.permissions.includes(permission)
+      });
+    }
+    
+    return hasAccess;
+  };
+
+  const hasLoyaltyPermission = (permission: string): boolean => {
+    return hasPermission(permission);
   };
 
   const hasModulePermission = (module: string, action: string = 'view'): boolean => {
     // Check if user has any permission for this module
     return safeAuth.permissions.some(perm => 
-      perm.startsWith(`${module}.`) || perm.includes(`${module}-`)
+      perm.startsWith(`${module}.`) || perm.includes(`${module}-`) || perm.includes(`${module}.${action}`)
     );
   };
 
@@ -87,6 +118,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, auth }) =>
     permissions: safeAuth.permissions || [],
     isAuthenticated: !!safeAuth.user,
     hasPermission,
+    hasLoyaltyPermission,
     hasModulePermission,
     canAccessModule,
     getModulePermissions,

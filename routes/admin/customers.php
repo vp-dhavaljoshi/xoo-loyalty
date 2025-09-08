@@ -6,4 +6,4 @@ use Inertia\Inertia;
 // Customer Management Routes
 Route::get('/customers', function () {
     return Inertia::render('Customers');
-})->middleware(['auth.custom', 'permission:loyalty-customers.view'])->name('customers');
+})->middleware(['auth.custom'])->name('customers');

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -34,26 +35,44 @@ class HandleInertiaRequests extends Middleware
         // If user is authenticated, get only their actual permissions
         if ($user) {
             try {
-                // Get only the permissions the user actually has
-                $userPermissions = $user->getAllPermissions()->pluck('name')->toArray();
+                // Get only loyalty permissions the user actually has
+                $userPermissions = $user->getLoyaltyPermissions();
+                
+                // Create a clean user object without the complex permission objects
+                $cleanUser = [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'email' => $user->email,
+                    'full_name' => $user->first_name . ' ' . $user->last_name,
+                ];
                 
                 return [
                     ...parent::share($request),
                     'auth' => [
-                        'user' => $user,
-                        'permissions' => $userPermissions, // Only send actual permissions
+                        'user' => $cleanUser,
+                        'permissions' => $userPermissions, // Only send loyalty permissions
                     ],
                 ];
             } catch (\Exception $e) {
-                \Log::error('Error fetching user permissions in HandleInertiaRequests', [
+                Log::error('Error fetching user permissions in HandleInertiaRequests', [
                     'user_id' => $user->id,
                     'error' => $e->getMessage()
                 ]);
                 
+                // Create a clean user object even in error case
+                $cleanUser = [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'email' => $user->email,
+                    'full_name' => $user->first_name . ' ' . $user->last_name,
+                ];
+                
                 return [
                     ...parent::share($request),
                     'auth' => [
-                        'user' => $user,
+                        'user' => $cleanUser,
                         'permissions' => [],
                     ],
                 ];

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 if (!function_exists('getLoginUserArray')) {
@@ -12,7 +13,7 @@ if (!function_exists('getLoginUserArray')) {
      */
     function getLoginUserArray(): array
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if (!$user) {
             return [
@@ -24,10 +25,20 @@ if (!function_exists('getLoginUserArray')) {
         }
 
         try {
-            $loyaltyPermissions = $user->getLoyaltyPermissions();            
+            $loyaltyPermissions = $user->getLoyaltyPermissions();
+            
+            // Create a clean user object consistent with HandleInertiaRequests
+            $cleanUser = [
+                'id' => $user->id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'full_name' => $user->first_name . ' ' . $user->last_name,
+            ];
+            
             return [
                 'auth' => [
-                    'user' => $user,
+                    'user' => $cleanUser,
                     'permissions' => $loyaltyPermissions
                 ]
             ];
@@ -37,9 +48,18 @@ if (!function_exists('getLoginUserArray')) {
                 'error' => $e->getMessage()
             ]);            
             
+            // Create a clean user object even in error case
+            $cleanUser = [
+                'id' => $user->id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'full_name' => $user->first_name . ' ' . $user->last_name,
+            ];
+            
             return [
                 'auth' => [
-                    'user' => $user,
+                    'user' => $cleanUser,
                     'permissions' => []
                 ]
             ];

@@ -16,7 +16,7 @@ import Home from './Pages/Home';
 import SimpleLogin from './Pages/SimpleLogin';
 
 // Import AdminLayout for placeholder components
-import AdminLayout from './Layouts/AdminLayout';
+import { AdminLayout } from './Layouts/AdminLayout';
 
 // Create placeholder components for missing reports
 const PlaceholderReport = ({ title }: { title: string }) => (
@@ -77,15 +77,14 @@ createInertiaApp({
     },
     setup({ el, App, props }) {
         const root = createRoot(el);
-        
+        console.log('Inertia props:', props);
         // Debug logging for development
         if (process.env.NODE_ENV === 'development') {
-            console.log('Inertia props:', props);
-            console.log('Auth data:', props.auth);
+            console.log('Auth data:', props.initialPage.props.auth);
         }
         
         // Ensure we have a fallback auth object
-        const authData = props.auth || { 
+        const authData = props.initialPage.props.auth as any || { 
             user: null, 
             permissions: []
         };

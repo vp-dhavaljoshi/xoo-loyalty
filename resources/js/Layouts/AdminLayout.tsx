@@ -25,6 +25,22 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const { user } = useAuth();
   const { url } = usePage();
   
+  // Debug logging
+  React.useEffect(() => {
+    console.log('AdminLayout rendered:', {
+      user,
+      url,
+      hasUser: !!user
+    });
+    if (process.env.NODE_ENV === 'development') {
+      console.log('AdminLayout rendered:', {
+        user,
+        url,
+        hasUser: !!user
+      });
+    }
+  }, [user, url]);
+  
   // Get page title based on current URL
   const getPageTitle = () => {
     if (url === '/admin/dashboard') return 'Dashboard';
@@ -75,13 +91,13 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                   >
                     <User className="h-5 w-5" />
                     <span className="text-sm">
-                      {user ? `${user.first_name} ${user.last_name}` : 'Admin User'}
+                      {user?.full_name || 'Admin User'}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>
-                    {user ? `${user.first_name} ${user.last_name}` : 'Admin User'}
+                    {user?.full_name || 'Admin User'}
                   </DropdownMenuLabel>
                   <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
                     {user?.email || 'admin@example.com'}
