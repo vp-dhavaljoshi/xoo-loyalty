@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/Layouts/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { 
-  Settings as SettingsIcon, 
   Shield, 
   DollarSign, 
   Gift, 
@@ -18,13 +17,6 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 
-interface User {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-}
-
 interface SettingsProps {
   settings?: any;
   settingsLoaded?: boolean;
@@ -32,9 +24,6 @@ interface SettingsProps {
 
 export default function Settings({ settings: initialSettings, settingsLoaded }: SettingsProps) {
   const [settings, setSettings] = useState({
-    // Module Configuration
-    loyaltyModuleEnabled: true,
-    
     // Fraud Detection
     fraudDetectionEnabled: true,
     requireOrderCompletion: true,
@@ -150,31 +139,6 @@ export default function Settings({ settings: initialSettings, settingsLoaded }: 
             </Button>
           </div>
         </div>
-
-        {/* Module Configuration */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <SettingsIcon className="h-5 w-5" />
-              Module Configuration
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium">Enable Loyalty Module</h3>
-                <p className="text-sm text-muted-foreground">
-                  Turn the entire loyalty program on or off
-                </p>
-              </div>
-              <Switch
-                checked={settings.loyaltyModuleEnabled}
-                onCheckedChange={(checked) => updateSetting('loyaltyModuleEnabled', checked)}
-                className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-gray-300"
-              />
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Fraud Detection & Point Freezing */}
         <Card>

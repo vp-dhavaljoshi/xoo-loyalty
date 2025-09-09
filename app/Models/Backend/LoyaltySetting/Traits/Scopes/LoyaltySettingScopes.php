@@ -10,7 +10,7 @@ trait LoyaltySettingScopes
     public function scopeByCategory($query, string $category)
     {
         $categoryKeys = [
-            'general' => ['loyalty_module_enabled', 'currency'],
+            'general' => ['currency'],
             'security' => [
                 'fraud_detection_enabled',
                 'require_order_completion',
@@ -61,7 +61,6 @@ trait LoyaltySettingScopes
     public function scopeBoolean($query)
     {
         $booleanKeys = [
-            'loyalty_module_enabled',
             'fraud_detection_enabled',
             'require_order_completion',
             'time_based_freeze',
@@ -158,7 +157,7 @@ trait LoyaltySettingScopes
     {
         return $query->orderByRaw("
             CASE 
-                WHEN key IN ('loyalty_module_enabled', 'currency') THEN 1
+                WHEN key IN ('currency') THEN 1
                 WHEN key IN ('fraud_detection_enabled', 'require_order_completion', 'time_based_freeze', 'freeze_duration_hours', 'new_customer_freeze', 'customer_age_threshold_days') THEN 2
                 WHEN key IN ('point_to_currency_rate', 'signup_bonus_points') THEN 3
                 ELSE 4
@@ -180,7 +179,6 @@ trait LoyaltySettingScopes
     public function scopeRequired($query)
     {
         $requiredKeys = [
-            'loyalty_module_enabled',
             'currency',
             'point_to_currency_rate',
         ];
@@ -194,7 +192,6 @@ trait LoyaltySettingScopes
     public function scopeOptional($query)
     {
         $requiredKeys = [
-            'loyalty_module_enabled',
             'currency',
             'point_to_currency_rate',
         ];

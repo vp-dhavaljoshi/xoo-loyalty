@@ -86,9 +86,8 @@ class LoyaltySettingRepository
         try {
             $settings = LoyaltySetting::getAllSettings();
             
-            // Only return public settings (module enabled, point value, currency, signup bonus)
+            // Only return public settings (point value, currency, signup bonus)
             $publicSettings = [
-                'loyaltyModuleEnabled' => $settings['loyaltyModuleEnabled'],
                 'pointToCurrencyRate' => $settings['pointToCurrencyRate'],
                 'currency' => $settings['currency'],
                 'signupBonusPoints' => $settings['signupBonusPoints'],

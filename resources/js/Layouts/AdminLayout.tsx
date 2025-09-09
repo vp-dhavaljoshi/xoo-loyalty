@@ -109,20 +109,20 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         
         {/* Main content area */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Header - now aligned with sidebar */}
-          <header className="goodcents-header h-16 flex items-center justify-between px-6 flex-shrink-0 z-10 border-b border-sidebar-border">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" className="text-header-foreground hover:bg-white/10 md:hidden">
+          {/* Header - responsive design */}
+          <header className="goodcents-header h-16 flex items-center justify-between px-4 sm:px-6 flex-shrink-0 z-10 border-b border-sidebar-border">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Button variant="ghost" size="sm" className="text-header-foreground hover:bg-white/10 lg:hidden">
                 <Menu className="h-5 w-5" />
               </Button>
-              <h1 className="text-xl font-bold">{getPageTitle()}</h1>
+              <h1 className="text-lg sm:text-xl font-bold truncate">{getPageTitle()}</h1>
             </div>
             
-            <div className="flex items-center gap-3">
-              <Button className="bg-white/10 hover:bg-white/20 text-header-foreground border-0 text-sm">
+            <div className="flex items-center gap-1 sm:gap-3">
+              <Button className="bg-white/10 hover:bg-white/20 text-header-foreground border-0 text-xs sm:text-sm hidden sm:inline-flex">
                 Lab Store
               </Button>
-              <Button className="bg-white/10 hover:bg-white/20 text-header-foreground border-0 text-sm">
+              <Button className="bg-white/10 hover:bg-white/20 text-header-foreground border-0 text-xs sm:text-sm hidden sm:inline-flex">
                 Online Ordering
               </Button>
               
@@ -131,10 +131,10 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="ghost" 
-                    className="flex items-center gap-2 text-header-foreground hover:bg-white/10 border-0 p-2"
+                    className="flex items-center gap-1 sm:gap-2 text-header-foreground hover:bg-white/10 border-0 p-1 sm:p-2"
                   >
-                    <User className="h-5 w-5" />
-                    <span className="text-sm">
+                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="text-xs sm:text-sm hidden sm:inline">
                       {user?.full_name || 'Admin User'}
                     </span>
                   </Button>
@@ -165,7 +165,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
           {/* Main content */}
           <main className="flex-1 overflow-auto bg-gradient-subtle min-h-0">
-            <div className="p-6 h-full">
+            <div className="p-4 sm:p-6 h-full">
               {children}
             </div>
           </main>

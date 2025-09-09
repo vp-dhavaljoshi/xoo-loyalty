@@ -6,14 +6,7 @@ import { router, usePage } from '@inertiajs/react';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import { PermissionGate } from '@/components/PermissionGate';
-import { PERMISSIONS, useAuth } from '@/contexts/AuthContext';
-
-interface User {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-}
+import { PERMISSIONS } from '@/contexts/AuthContext';
 
 interface DashboardProps {
   // Props are now handled globally by Inertia middleware
@@ -22,18 +15,17 @@ interface DashboardProps {
 export default function Dashboard({}: DashboardProps) {
   const { toast } = useToast();
   const { props } = usePage();
-  const { user, setAuth } = useAuth();
   
   // Show success message if redirected from login
   useEffect(() => {
-    if (props.flash?.success) {
+    if ((props.flash as any)?.success) {
       toast({
         title: "Success!",
-        description: props.flash.success,
+        description: (props.flash as any).success,
         variant: "success",
       });
     }
-  }, [props.flash?.success, toast]);
+  }, [(props.flash as any)?.success, toast]);
 
   // Auth data is now handled globally by Inertia middleware
   const stats = [
@@ -80,45 +72,46 @@ export default function Dashboard({}: DashboardProps) {
   const navigateToRules = () => router.visit('/admin/rules');
   const navigateToCampaigns = () => router.visit('/admin/campaigns');
   const navigateToRewards = () => router.visit('/admin/rewards');
-  const navigateToSettings = () => router.visit('/admin/settings');
 
   return (
     <AdminLayout>
       <div className="space-y-8">
-        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 lg:gap-6">
           <div className="space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight text-gradient">Dashboard</h1>
-            <p className="text-xl text-muted-foreground">Monitor your loyalty program performance and insights</p>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-gradient">Dashboard</h1>
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground">Monitor your loyalty program performance and insights</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <PermissionGate permission={PERMISSIONS.RULES_VIEW}>
               <Button className="btn-gradient" onClick={navigateToRules}>
                 <TrendingUp className="h-4 w-4 mr-2" />
-                Manage Rules
+                <span className="hidden sm:inline">Manage Rules</span>
+                <span className="sm:hidden">Rules</span>
               </Button>
             </PermissionGate>
             <PermissionGate permission={PERMISSIONS.CAMPAIGNS_VIEW}>
               <Button variant="outline" className="hover-lift" onClick={navigateToCampaigns}>
                 <Mail className="h-4 w-4 mr-2" />
-                Manage Campaigns
+                <span className="hidden sm:inline">Manage Campaigns</span>
+                <span className="sm:hidden">Campaigns</span>
               </Button>
             </PermissionGate>
           </div>
         </div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           {stats.map((stat, index) => (
             <div key={stat.title} className="animate-slide-up" style={{ animationDelay: `${(index + 1) * 0.1}s` }}>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">{stat.title}</CardTitle>
-                  <stat.icon className="h-4 w-4 text-gray-400" />
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 truncate">{stat.title}</CardTitle>
+                  <stat.icon className="h-4 w-4 text-gray-400 flex-shrink-0" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <div className="text-xl sm:text-2xl font-bold">{stat.value}</div>
                   {stat.change && (
-                    <p className={`text-xs ${getChangeColor(stat.changeType)}`}>
+                    <p className={`text-xs ${getChangeColor(stat.changeType)} truncate`}>
                       {stat.change}
                     </p>
                   )}
@@ -129,18 +122,18 @@ export default function Dashboard({}: DashboardProps) {
         </div>
 
         {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           <div className="lg:col-span-2 animate-scale-in">
             <Card>
               <CardHeader>
-                <CardTitle>Points Issued vs. Redeemed</CardTitle>
+                <CardTitle className="text-lg sm:text-xl">Points Issued vs. Redeemed</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px] flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="text-center text-gray-500">
-                    <BarChart3 className="h-12 w-12 mx-auto mb-2 text-gray-400" />
-                    <p className="text-sm">Chart visualization would be rendered here</p>
-                    <p className="text-xs text-gray-400">Red line: Points Issued, Blue line: Points Redeemed</p>
+                <div className="h-[250px] sm:h-[300px] flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="text-center text-gray-500 p-4">
+                    <BarChart3 className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2 text-gray-400" />
+                    <p className="text-xs sm:text-sm">Chart visualization would be rendered here</p>
+                    <p className="text-xs text-gray-400 hidden sm:block">Red line: Points Issued, Blue line: Points Redeemed</p>
                   </div>
                 </div>
               </CardContent>
@@ -148,9 +141,9 @@ export default function Dashboard({}: DashboardProps) {
           </div>
           
           {/* Quick Actions */}
-          <div className="space-y-6 animate-scale-in" style={{ animationDelay: '0.2s' }}>
-            <h3 className="text-2xl font-bold tracking-tight">Quick Actions</h3>
-            <div className="space-y-3">
+          <div className="space-y-4 lg:space-y-6 animate-scale-in" style={{ animationDelay: '0.2s' }}>
+            <h3 className="text-xl sm:text-2xl font-bold tracking-tight">Quick Actions</h3>
+            <div className="space-y-2 sm:space-y-3">
               <PermissionGate permission={PERMISSIONS.CUSTOMERS_VIEW}>
                 <Button 
                   variant="outline" 
@@ -159,7 +152,8 @@ export default function Dashboard({}: DashboardProps) {
                 >
                   <span className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    View All Customers
+                    <span className="hidden sm:inline">View All Customers</span>
+                    <span className="sm:hidden">Customers</span>
                   </span>
                   <ArrowRight className="h-4 w-4" />
                 </Button>
@@ -173,7 +167,8 @@ export default function Dashboard({}: DashboardProps) {
                 >
                   <span className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
-                    Create New Rule
+                    <span className="hidden sm:inline">Create New Rule</span>
+                    <span className="sm:hidden">New Rule</span>
                   </span>
                   <ArrowRight className="h-4 w-4" />
                 </Button>
@@ -187,7 +182,8 @@ export default function Dashboard({}: DashboardProps) {
                 >
                   <span className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />
-                    Launch Campaign
+                    <span className="hidden sm:inline">Launch Campaign</span>
+                    <span className="sm:hidden">Campaign</span>
                   </span>
                   <ArrowRight className="h-4 w-4" />
                 </Button>
@@ -201,7 +197,8 @@ export default function Dashboard({}: DashboardProps) {
                 >
                   <span className="flex items-center gap-2">
                     <Gift className="h-4 w-4" />
-                    Manage Rewards
+                    <span className="hidden sm:inline">Manage Rewards</span>
+                    <span className="sm:hidden">Rewards</span>
                   </span>
                   <ArrowRight className="h-4 w-4" />
                 </Button>

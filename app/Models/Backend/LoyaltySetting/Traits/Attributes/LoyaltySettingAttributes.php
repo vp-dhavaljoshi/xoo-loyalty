@@ -43,7 +43,6 @@ trait LoyaltySettingAttributes
     public function getIsBooleanAttribute(): bool
     {
         $booleanKeys = [
-            'loyalty_module_enabled',
             'fraud_detection_enabled',
             'require_order_completion',
             'time_based_freeze',
@@ -85,7 +84,6 @@ trait LoyaltySettingAttributes
     public function getDisplayNameAttribute(): string
     {
         $displayNames = [
-            'loyalty_module_enabled' => 'Loyalty Module Enabled',
             'fraud_detection_enabled' => 'Fraud Detection Enabled',
             'require_order_completion' => 'Require Order Completion',
             'time_based_freeze' => 'Time Based Freeze',
@@ -106,7 +104,6 @@ trait LoyaltySettingAttributes
     public function getDescriptionAttribute(): string
     {
         $descriptions = [
-            'loyalty_module_enabled' => 'Enable or disable the loyalty module system',
             'fraud_detection_enabled' => 'Enable fraud detection for loyalty transactions',
             'require_order_completion' => 'Require order completion before awarding points',
             'time_based_freeze' => 'Enable time-based freeze for new customers',
@@ -127,7 +124,6 @@ trait LoyaltySettingAttributes
     public function getCategoryAttribute(): string
     {
         $categories = [
-            'loyalty_module_enabled' => 'general',
             'fraud_detection_enabled' => 'security',
             'require_order_completion' => 'security',
             'time_based_freeze' => 'security',

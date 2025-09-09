@@ -62,7 +62,6 @@ trait LoyaltySettingRelationships
     {
         $categoryKeys = [
             'general' => [
-                'loyalty_module_enabled',
                 'currency',
             ],
             'security' => [
@@ -88,14 +87,6 @@ trait LoyaltySettingRelationships
     public function getDependencies(): array
     {
         $dependencies = [
-            'loyalty_module_enabled' => [
-                'fraud_detection_enabled',
-                'require_order_completion',
-                'time_based_freeze',
-                'new_customer_freeze',
-                'point_to_currency_rate',
-                'signup_bonus_points',
-            ],
             'time_based_freeze' => [
                 'freeze_duration_hours',
             ],
@@ -212,7 +203,6 @@ trait LoyaltySettingRelationships
         
         // Return with frontend-friendly keys
         return [
-            'loyaltyModuleEnabled' => $result['loyalty_module_enabled'] ?? true,
             'fraudDetectionEnabled' => $result['fraud_detection_enabled'] ?? true,
             'requireOrderCompletion' => $result['require_order_completion'] ?? true,
             'timeBasedFreeze' => $result['time_based_freeze'] ?? true,
@@ -234,7 +224,6 @@ trait LoyaltySettingRelationships
     public static function updateFromArray(array $settingsData): bool
     {
         $keyMapping = [
-            'loyaltyModuleEnabled' => 'loyalty_module_enabled',
             'fraudDetectionEnabled' => 'fraud_detection_enabled',
             'requireOrderCompletion' => 'require_order_completion',
             'timeBasedFreeze' => 'time_based_freeze',
@@ -266,7 +255,6 @@ trait LoyaltySettingRelationships
     {
         // Boolean settings
         $booleanKeys = [
-            'loyalty_module_enabled',
             'fraud_detection_enabled',
             'require_order_completion',
             'time_based_freeze',

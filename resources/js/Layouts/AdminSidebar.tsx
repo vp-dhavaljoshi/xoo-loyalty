@@ -131,15 +131,15 @@ export const AdminSidebar = () => {
   };
 
   return (
-    <div className="border-r border-sidebar-border bg-sidebar w-64 flex-shrink-0 h-screen sticky top-0 flex flex-col">
+    <div className="border-r border-sidebar-border bg-sidebar w-64 flex-shrink-0 h-screen sticky top-0 flex flex-col hidden lg:flex">
       {/* Sidebar header */}
-      <div className="p-6 bg-sidebar flex-shrink-0">
-        <div className="flex items-center gap-3">
+      <div className="p-4 lg:p-6 bg-sidebar flex-shrink-0">
+        <div className="flex items-center gap-2 lg:gap-3">
           <div className="p-2 bg-primary rounded-lg">
-            <Crown className="h-5 w-5 text-primary-foreground" />
+            <Crown className="h-4 w-4 lg:h-5 lg:w-5 text-primary-foreground" />
           </div>
           <div>
-            <h2 className="font-semibold text-base text-sidebar-foreground">Loyalty Manager</h2>
+            <h2 className="font-semibold text-sm lg:text-base text-sidebar-foreground">Loyalty Manager</h2>
             <p className="text-xs text-sidebar-foreground/70">Admin Dashboard</p>
           </div>
         </div>
@@ -150,7 +150,7 @@ export const AdminSidebar = () => {
       
       {/* Navigation items */}
       <div className="flex-1 overflow-auto bg-sidebar">
-        <div className="p-4 space-y-1">
+        <div className="p-3 lg:p-4 space-y-1">
           {navigationItems.map((item) => {
             const active = isActive(item.url);
             const hasAccess = hasPermission(item.permission);
@@ -169,14 +169,14 @@ export const AdminSidebar = () => {
               <div key={item.title}>
                 <Link 
                   href={item.url} 
-                  className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg ${
+                  className={`flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-2.5 text-sm font-medium transition-all duration-200 rounded-lg ${
                     active 
                       ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm border-l-4 border-primary' 
                       : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
                   }`}
                 >
                   <item.icon className={`h-4 w-4 ${active ? 'text-primary' : 'text-sidebar-foreground'}`} />
-                  <span>{item.title}</span>
+                  <span className="truncate">{item.title}</span>
                 </Link>
               </div>
             );
@@ -187,14 +187,14 @@ export const AdminSidebar = () => {
             <div>
               <Collapsible defaultOpen className="group/collapsible">
                 <CollapsibleTrigger asChild>
-                  <button className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground w-full text-left">
+                  <button className="flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-2.5 text-sm font-medium transition-all duration-200 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground w-full text-left">
                     <FileBarChart className="h-4 w-4" />
-                    <span>Reports</span>
-                    <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                    <span className="truncate">Reports</span>
+                    <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180 flex-shrink-0" />
                   </button>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <div className="ml-4 space-y-1">
+                  <div className="ml-3 lg:ml-4 space-y-1">
                     {reportItems.map((report) => {
                       const active = isActive(report.url);
                       return (
@@ -202,13 +202,13 @@ export const AdminSidebar = () => {
                           <div>
                             <Link 
                               href={report.url}
-                              className={`flex items-center gap-2 px-3 py-2 text-sm transition-all duration-200 rounded-md ${
+                              className={`flex items-center gap-2 px-2 lg:px-3 py-1.5 lg:py-2 text-sm transition-all duration-200 rounded-md ${
                                 active 
                                   ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' 
                                   : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
                               }`}
                             >
-                              <span>{report.title}</span>
+                              <span className="truncate">{report.title}</span>
                             </Link>
                           </div>
                         </PermissionGate>

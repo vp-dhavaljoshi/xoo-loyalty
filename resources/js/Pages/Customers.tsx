@@ -46,13 +46,6 @@ interface Transaction {
   description: string;
 }
 
-interface User {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-}
-
 interface CustomersProps {
   // No longer need auth prop - using context
 }
@@ -95,29 +88,38 @@ export default function Customers({}: CustomersProps) {
     },
   });
 
-  const { mutate: updateUserStatus } = useApiMutation(
-    '/admin/api/customers/status',
-    {
-      onSuccess: () => {
-        toast({
-          title: "Success",
-          description: "User status updated successfully.",
-        });
-        fetchCustomers(getCurrentFilters());
-      },
-      onError: (error) => {
-        toast({
-          title: "Error",
-          description: "Failed to update user status. Please try again.",
-          variant: "destructive",
-        });
-      },
-    }
-  );
+  // const { mutate: updateUserStatus } = useApiMutation(
+  //   '/admin/api/customers/status',
+  //   {
+  //     onSuccess: () => {
+  //       toast({
+  //         title: "Success",
+  //         description: "User status updated successfully.",
+  //       });
+  //       fetchCustomers(getCurrentFilters());
+  //     },
+  //     onError: () => {
+  //       toast({
+  //         title: "Error",
+  //         description: "Failed to update user status. Please try again.",
+  //         variant: "destructive",
+  //       });
+  //     },
+  //   }
+  // );
 
   const handleExportCsv = async () => {
     try {
-      const params = new URLSearchParams(getCurrentFilters());
+      const filters = getCurrentFilters();
+      const params = new URLSearchParams({
+        search: filters.search,
+        status: filters.status,
+        date_filter: filters.date_filter,
+        page: filters.page.toString(),
+        per_page: filters.per_page.toString(),
+        sort_by: filters.sort_by,
+        sort_direction: filters.sort_direction,
+      });
       const response = await fetch(`/admin/api/customers/export/csv?${params}`, {
         method: 'GET',
         headers: {
@@ -287,8 +289,8 @@ export default function Customers({}: CustomersProps) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Customer Management</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Customer Management</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Manage customer accounts and loyalty points
             </p>
           </div>
@@ -296,11 +298,11 @@ export default function Customers({}: CustomersProps) {
 
         {/* Enhanced Search and Filters */}
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="space-y-4">
               {/* Search and Export Row */}
-            <div className="flex items-center gap-4">
-                <div className="relative flex-1 max-w-md">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                     placeholder="Search customers by name or email..."
@@ -310,36 +312,39 @@ export default function Customers({}: CustomersProps) {
                 />
               </div>
                 
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2"
-                >
-                  <Filter className="h-4 w-4" />
-                Filters
-                  {hasActiveFilters && (
-                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                      {[searchTerm, statusFilter, dateFilter].filter(f => f !== 'All' && f !== '').length}
-                    </span>
-                  )}
-              </Button>
-                
-              <PermissionGate permission={PERMISSIONS.CUSTOMERS_EXPORT}>
-                <Button 
-                  variant="outline" 
-                  onClick={handleExportCsv}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Export CSV
-                </Button>
-              </PermissionGate>
+                <div className="flex items-center gap-2 sm:gap-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="flex items-center gap-2"
+                  >
+                    <Filter className="h-4 w-4" />
+                    <span className="hidden sm:inline">Filters</span>
+                    {hasActiveFilters && (
+                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                        {[searchTerm, statusFilter, dateFilter].filter(f => f !== 'All' && f !== '').length}
+                      </span>
+                    )}
+                  </Button>
+                  
+                  <PermissionGate permission={PERMISSIONS.CUSTOMERS_EXPORT}>
+                    <Button 
+                      variant="outline" 
+                      onClick={handleExportCsv}
+                      className="flex items-center gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      <span className="hidden sm:inline">Export CSV</span>
+                    </Button>
+                  </PermissionGate>
+                </div>
               </div>
 
               {/* Advanced Filters */}
               <Collapsible open={showFilters} className="space-y-4">
                 <CollapsibleContent>
                   <div className="border-t pt-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {/* Status Filter */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Status</label>
@@ -370,7 +375,7 @@ export default function Customers({}: CustomersProps) {
                       </div>
 
                       {/* Clear Filters */}
-                      <div className="space-y-2">
+                      <div className="space-y-2 sm:col-span-2 lg:col-span-1">
                         <label className="text-sm font-medium">&nbsp;</label>
                         <Button 
                           variant="outline" 
@@ -380,7 +385,7 @@ export default function Customers({}: CustomersProps) {
                         >
                           <X className="h-4 w-4 mr-2" />
                           Clear Filters
-              </Button>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -427,19 +432,20 @@ export default function Customers({}: CustomersProps) {
               </div>
             ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[600px]">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left p-3 font-medium">
+                      <th className="text-left p-2 sm:p-3 font-medium">
                         <button
                           onClick={() => handleSort('first_name')}
                           className="flex items-center gap-2 hover:text-blue-600 transition-colors"
                         >
-                          Name
+                          <span className="hidden sm:inline">Name</span>
+                          <span className="sm:hidden">Customer</span>
                           {getSortIcon('first_name')}
                         </button>
                       </th>
-                      <th className="text-left p-3 font-medium">
+                      <th className="text-left p-2 sm:p-3 font-medium hidden sm:table-cell">
                         <button
                           onClick={() => handleSort('email')}
                           className="flex items-center gap-2 hover:text-blue-600 transition-colors"
@@ -448,18 +454,19 @@ export default function Customers({}: CustomersProps) {
                           {getSortIcon('email')}
                         </button>
                       </th>
-                      <th className="text-left p-3 font-medium">Status</th>
-                      <th className="text-left p-3 font-medium">Total Points</th>
-                      <th className="text-left p-3 font-medium">
+                      <th className="text-left p-2 sm:p-3 font-medium">Status</th>
+                      <th className="text-left p-2 sm:p-3 font-medium">Points</th>
+                      <th className="text-left p-2 sm:p-3 font-medium hidden md:table-cell">
                         <button
                           onClick={() => handleSort('created_at')}
                           className="flex items-center gap-2 hover:text-blue-600 transition-colors"
                         >
-                          Signup Date
+                          <span className="hidden lg:inline">Signup Date</span>
+                          <span className="lg:hidden">Date</span>
                           {getSortIcon('created_at')}
                         </button>
                       </th>
-                      <th className="text-left p-3 font-medium">Actions</th>
+                      <th className="text-left p-2 sm:p-3 font-medium">Actions</th>
                     </tr>
                   </thead>
                 <tbody>
@@ -472,21 +479,22 @@ export default function Customers({}: CustomersProps) {
                     ) : (
                       customers.map((customer) => (
                     <tr key={customer.id} className="border-b hover:bg-muted/50">
-                      <td className="p-3">
+                      <td className="p-2 sm:p-3">
                         <div className="font-medium">{customer.name}</div>
+                        <div className="text-xs text-muted-foreground sm:hidden">{customer.email}</div>
                       </td>
-                      <td className="p-3 text-muted-foreground">{customer.email}</td>
-                      <td className="p-3">
+                      <td className="p-2 sm:p-3 text-muted-foreground hidden sm:table-cell">{customer.email}</td>
+                      <td className="p-2 sm:p-3">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(customer.status)}`}>
                           {customer.status}
                         </span>
                       </td>
-                      <td className="p-3">
+                      <td className="p-2 sm:p-3">
                         <span className="font-medium text-blue-600">{customer.totalPoints.toLocaleString()}</span>
                       </td>
-                      <td className="p-3 text-muted-foreground">{customer.signupDate}</td>
-                      <td className="p-3">
-                        <div className="flex items-center gap-2">
+                      <td className="p-2 sm:p-3 text-muted-foreground hidden md:table-cell">{customer.signupDate}</td>
+                      <td className="p-2 sm:p-3">
+                        <div className="flex items-center gap-1 sm:gap-2">
                           {/* Eye icon - Transaction History */}
                           <Dialog>
                             <DialogTrigger asChild>
@@ -494,6 +502,7 @@ export default function Customers({}: CustomersProps) {
                                 variant="ghost" 
                                 size="sm"
                                 onClick={() => setSelectedCustomer(customer)}
+                                className="h-8 w-8 p-0"
                               >
                                 <Eye className="h-4 w-4" />
                               </Button>
@@ -555,6 +564,7 @@ export default function Customers({}: CustomersProps) {
                                     setSelectedCustomer(customer);
                                     setShowPointsAdjustment(true);
                                   }}
+                                  className="h-8 w-8 p-0"
                                 >
                                   <TrendingUp className="h-4 w-4" />
                                 </Button>
@@ -619,8 +629,8 @@ export default function Customers({}: CustomersProps) {
         {/* Pagination */}
         {pagination && pagination.last_page > 1 && (
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center space-x-2">
                   <p className="text-sm text-muted-foreground">
                     Rows per page:

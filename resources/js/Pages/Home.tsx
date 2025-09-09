@@ -84,11 +84,11 @@ export default function Home({ error }: HomeProps) {
                 <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                                    <Heart className="h-5 w-5 text-white" />
+                            <div className="flex items-center space-x-2 sm:space-x-3">
+                                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                                    <Heart className="h-3 w-3 sm:h-5 sm:w-5 text-white" />
                                 </div>
-                                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                     Loyalty System
                                 </h1>
                             </div>
@@ -98,10 +98,10 @@ export default function Home({ error }: HomeProps) {
                                     <DropdownMenuTrigger asChild>
                                         <Button 
                                             variant="ghost" 
-                                            className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 p-2"
+                                            className="flex items-center gap-1 sm:gap-2 text-gray-700 hover:bg-gray-100 p-1 sm:p-2"
                                         >
                                             <User className="h-4 w-4" />
-                                            <span className="text-sm font-medium">
+                                            <span className="text-xs sm:text-sm font-medium hidden sm:inline">
                                                 {user.first_name} {user.last_name}
                                             </span>
                                         </Button>
@@ -146,24 +146,25 @@ export default function Home({ error }: HomeProps) {
                 )}
 
                 {/* Hero Section */}
-                <section className="py-20">
+                <section className="py-12 sm:py-16 lg:py-20">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                         <div className="max-w-3xl mx-auto">
                             <Badge variant="outline" className="mb-4">
                                 <Zap className="h-4 w-4 mr-1" />
-                                Powered by Advanced Analytics
+                                <span className="hidden sm:inline">Powered by Advanced Analytics</span>
+                                <span className="sm:hidden">Advanced Analytics</span>
                             </Badge>
-                            <h2 className="text-5xl font-bold text-gray-900 mb-6">
+                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
                                 Transform Your Customer
                                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Loyalty</span>
                             </h2>
-                            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                            <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 leading-relaxed">
                                 Create engaging loyalty programs that drive customer retention, increase sales, 
                                 and build lasting relationships with your brand.
                             </p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                                 <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                                    <Award className="h-5 w-5 mr-2" />
+                                    <Award className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                                     Get Started
                                 </Button>
                                 <Button size="lg" variant="outline">
@@ -175,16 +176,16 @@ export default function Home({ error }: HomeProps) {
                 </section>
 
                 {/* Stats Section */}
-                <section className="py-16 bg-white/50">
+                <section className="py-12 sm:py-16 bg-white/50">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                             {stats.map((stat, index) => (
                                 <div key={index} className="text-center">
                                     <div className="flex justify-center mb-2 text-blue-600">
                                         {stat.icon}
                                     </div>
-                                    <div className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
-                                    <div className="text-sm text-gray-600">{stat.label}</div>
+                                    <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
+                                    <div className="text-xs sm:text-sm text-gray-600">{stat.label}</div>
                                 </div>
                             ))}
                         </div>
@@ -192,28 +193,28 @@ export default function Home({ error }: HomeProps) {
                 </section>
 
                 {/* Features Section */}
-                <section className="py-20">
+                <section className="py-12 sm:py-16 lg:py-20">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-16">
-                            <h3 className="text-3xl font-bold text-gray-900 mb-4">
+                        <div className="text-center mb-12 sm:mb-16">
+                            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
                                 Why Choose Our Loyalty System?
                             </h3>
-                            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
                                 Our comprehensive platform provides everything you need to create, 
                                 manage, and optimize customer loyalty programs.
                             </p>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
                             {features.map((feature, index) => (
                                 <Card key={index} className="text-center hover:shadow-lg transition-shadow">
                                     <CardHeader>
                                         <div className="flex justify-center mb-4">
                                             {feature.icon}
                                         </div>
-                                        <CardTitle className="text-xl">{feature.title}</CardTitle>
+                                        <CardTitle className="text-lg sm:text-xl">{feature.title}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <CardDescription className="text-base">
+                                        <CardDescription className="text-sm sm:text-base">
                                             {feature.description}
                                         </CardDescription>
                                     </CardContent>
@@ -224,17 +225,17 @@ export default function Home({ error }: HomeProps) {
                 </section>
 
                 {/* CTA Section */}
-                <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+                <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-blue-600 to-purple-600">
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                        <h3 className="text-3xl font-bold text-white mb-4">
+                        <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">
                             Ready to Boost Customer Loyalty?
                         </h3>
-                        <p className="text-xl text-blue-100 mb-8">
+                        <p className="text-base sm:text-lg lg:text-xl text-blue-100 mb-6 sm:mb-8">
                             Join thousands of businesses already using our platform to increase customer retention and drive growth.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                             <Button size="lg" variant="secondary">
-                                <Star className="h-5 w-5 mr-2" />
+                                <Star className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                                 Start Free Trial
                             </Button>
                             <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-blue-600">
@@ -245,19 +246,19 @@ export default function Home({ error }: HomeProps) {
                 </section>
 
                 {/* Footer */}
-                <footer className="bg-gray-900 text-white py-12">
+                <footer className="bg-gray-900 text-white py-8 sm:py-12">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="text-center">
-                            <div className="flex items-center justify-center space-x-3 mb-4">
-                                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                                    <Heart className="h-5 w-5 text-white" />
+                            <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-4">
+                                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                                    <Heart className="h-3 w-3 sm:h-5 sm:w-5 text-white" />
                                 </div>
-                                <span className="text-xl font-bold">Loyalty System</span>
+                                <span className="text-lg sm:text-xl font-bold">Loyalty System</span>
                             </div>
-                            <p className="text-gray-400 mb-4">
+                            <p className="text-sm sm:text-base text-gray-400 mb-4">
                                 Empowering businesses to build stronger customer relationships through innovative loyalty programs.
                             </p>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-xs sm:text-sm text-gray-500">
                                 © 2024 Loyalty System. All rights reserved.
                             </div>
                         </div>

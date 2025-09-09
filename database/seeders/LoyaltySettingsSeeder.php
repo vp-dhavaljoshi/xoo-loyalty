@@ -14,9 +14,6 @@ class LoyaltySettingsSeeder extends Seeder
     public function run(): void
     {
         $settings = [
-            // Module Configuration
-            'loyalty_module_enabled' => 'true',
-            
             // Fraud Detection & Point Freezing
             'fraud_detection_enabled' => 'true',
             'require_order_completion' => 'true',
