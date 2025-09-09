@@ -4,7 +4,7 @@ import { AdminSidebar } from './AdminSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Menu, User, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { usePage, router } from '@inertiajs/react';
+import { usePage, router, Head } from '@inertiajs/react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,13 +43,45 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   
   // Get page title based on current URL
   const getPageTitle = () => {
-    if (url === '/admin/dashboard') return 'Dashboard';
-    if (url === '/admin/customers') return 'Customer Management';
-    if (url === '/admin/rules') return 'Rules Engine';
-    if (url === '/admin/campaigns') return 'Campaigns';
-    if (url === '/admin/rewards') return 'Rewards Catalog';
-    if (url === '/admin/settings') return 'Settings';
-    if (url.includes('/admin/reports/')) return 'Reports';
+    // Debug logging
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Current URL for title:', url);
+    }
+    
+    // Handle empty or undefined URL
+    if (!url || url === '') return 'Dashboard';
+    
+    // Home page
+    if (url === '/') return 'Home';
+    
+    // Dashboard
+    if (url === '/admin/dashboard' || url.startsWith('/admin/dashboard')) return 'Dashboard';
+    
+    // Customer Management
+    if (url === '/admin/customers' || url.startsWith('/admin/customers')) return 'Customer Management';
+    
+    // Rules Engine
+    if (url === '/admin/rules' || url.startsWith('/admin/rules')) return 'Rules Engine';
+    
+    // Campaigns
+    if (url === '/admin/campaigns' || url.startsWith('/admin/campaigns')) return 'Campaigns';
+    
+    // Rewards Catalog
+    if (url === '/admin/rewards' || url.startsWith('/admin/rewards')) return 'Rewards Catalog';
+    
+    // Settings
+    if (url === '/admin/settings' || url.startsWith('/admin/settings')) return 'Settings';
+    
+    // Reports
+    if (url.includes('/admin/reports/')) {
+      if (url.includes('/participation')) return 'Participation Reports';
+      return 'Reports';
+    }
+    
+    // Profile
+    if (url === '/profile' || url.startsWith('/profile')) return 'Profile';
+    
+    // Default fallback
     return 'Dashboard';
   };
 
@@ -57,8 +89,20 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
     router.post('/logout');
   };
 
+  // Get the current page title
+  const currentPageTitle = getPageTitle();
+
+  // Force re-render when URL changes to ensure title updates immediately
+  const [titleKey, setTitleKey] = React.useState(0);
+  
+  React.useEffect(() => {
+    setTitleKey(prev => prev + 1);
+  }, [url]);
+
   return (
-    <SidebarProvider>
+    <>
+      <Head title={`${currentPageTitle} | xoo-loyalty`} key={titleKey} />
+      <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         {/* Sidebar */}
         <AdminSidebar />
@@ -127,6 +171,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           </main>
         </div>
       </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import  { useState,   useEffect } from 'react';
 import { AdminLayout } from '@/Layouts/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,11 +17,18 @@ import {
   TrendingUp, 
   Filter,
   X,
-  ChevronDown
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import { PermissionGate } from '@/components/PermissionGate';
 import { PERMISSIONS } from '@/contexts/AuthContext';
+import { usePaginatedApi, useApiMutation } from '@/hooks/useApi';
+import { useToast } from '@/hooks/use-toast';
 
 interface Customer {
   id: number;
@@ -59,41 +66,122 @@ export default function Customers({}: CustomersProps) {
   const [showPointsAdjustment, setShowPointsAdjustment] = useState(false);
   const [pointsToAdjust, setPointsToAdjust] = useState('');
   const [adjustmentReason, setAdjustmentReason] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-  const customers: Customer[] = [
-    { 
-      id: 1, 
-      name: 'John Smith', 
-      email: 'john@example.com', 
-      status: 'Active', 
-      totalPoints: 1250, 
-      signupDate: '2024-01-15' 
+  const { toast } = useToast();
+
+  // API hooks
+  const {
+    data: customersData,
+    loading: customersLoading,
+    error: customersError,
+    fetchData: fetchCustomers,
+    goToPage,
+    changePerPage,
+  } = usePaginatedApi<Customer>('/admin/api/customers', {
+    onSuccess: (data) => {
+      console.log('API Success:', data);
     },
-    { 
-      id: 2, 
-      name: 'Sarah Johnson', 
-      email: 'sarah@example.com', 
-      status: 'Active', 
-      totalPoints: 890, 
-      signupDate: '2024-02-20' 
+    onError: (error) => {
+      console.error('API Error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load customers. Please try again.",
+        variant: "destructive",
+      });
     },
-    { 
-      id: 3, 
-      name: 'Mike Wilson', 
-      email: 'mike@example.com', 
-      status: 'Active', 
-      totalPoints: 2100, 
-      signupDate: '2024-01-08' 
-    },
-    { 
-      id: 4, 
-      name: 'Emily Davis', 
-      email: 'emily@example.com', 
-      status: 'Inactive', 
-      totalPoints: 450, 
-      signupDate: '2024-03-10' 
-    },
-  ];
+  });
+
+  const { mutate: updateUserStatus } = useApiMutation(
+    '/admin/api/customers/status',
+    {
+      onSuccess: () => {
+        toast({
+          title: "Success",
+          description: "User status updated successfully.",
+        });
+        fetchCustomers(getCurrentFilters());
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description: "Failed to update user status. Please try again.",
+          variant: "destructive",
+        });
+      },
+    }
+  );
+
+  const handleExportCsv = async () => {
+    try {
+      const params = new URLSearchParams(getCurrentFilters());
+      const response = await fetch(`/admin/api/customers/export/csv?${params}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'text/csv',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
+      });
+
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `customers-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Success",
+        description: "CSV export completed successfully.",
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to export CSV. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Get current filters for API calls
+  const getCurrentFilters = () => ({
+    search: searchTerm,
+    status: statusFilter,
+    date_filter: dateFilter,
+    page: currentPage,
+    per_page: perPage,
+    sort_by: sortBy,
+    sort_direction: sortDirection,
+  });
+
+  // Initial load
+  useEffect(() => {
+    fetchCustomers(getCurrentFilters());
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch customers when filters change (debounced for search)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchCustomers(getCurrentFilters());
+    }, searchTerm ? 300 : 0); // Only debounce search, not other filters
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, statusFilter, dateFilter, currentPage, perPage, sortBy, sortDirection]);
+
+  const customers = customersData?.users || [];
+  const pagination = customersData?.pagination;
 
   const transactions: Transaction[] = [
     {
@@ -122,40 +210,38 @@ export default function Customers({}: CustomersProps) {
     }
   ];
 
-  // Enhanced client-side filtering
-  const filteredCustomers = useMemo(() => {
-    return customers.filter(customer => {
-      // Search filter
-      const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      // Status filter
-      const matchesStatus = statusFilter === 'All' || customer.status === statusFilter;
-      
-      // Date filter
-      let matchesDate = true;
-      if (dateFilter !== 'All') {
-        const signupDate = new Date(customer.signupDate);
-        const now = new Date();
-        const diffTime = Math.abs(now.getTime() - signupDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        switch (dateFilter) {
-          case 'Last 30 days':
-            matchesDate = diffDays <= 30;
-            break;
-          case 'Last 90 days':
-            matchesDate = diffDays <= 90;
-            break;
-          case 'Last year':
-            matchesDate = diffDays <= 365;
-            break;
-        }
-      }
-      
-      return matchesSearch && matchesStatus && matchesDate;
-    });
-  }, [customers, searchTerm, statusFilter, dateFilter]);
+  // Handle pagination
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    goToPage(page, getCurrentFilters());
+  };
+
+  const handlePerPageChange = (newPerPage: number) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+    changePerPage(newPerPage, getCurrentFilters());
+  };
+
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      // Toggle direction if same column
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new column with default direction
+      setSortBy(column);
+      setSortDirection('asc');
+    }
+    setCurrentPage(1); // Reset to first page when sorting
+  };
+
+  const getSortIcon = (column: string) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="h-4 w-4 text-muted-foreground" />;
+    }
+    return sortDirection === 'asc' 
+      ? <ArrowUp className="h-4 w-4 text-blue-600" />
+      : <ArrowDown className="h-4 w-4 text-blue-600" />;
+  };
 
   const handlePointsAdjustment = () => {
     // Here you would typically make an API call to adjust points
@@ -184,6 +270,7 @@ export default function Customers({}: CustomersProps) {
     setSearchTerm('');
     setStatusFilter('All');
     setDateFilter('All');
+    setCurrentPage(1);
   };
 
   const getStatusColor = (status: string) => {
@@ -238,11 +325,14 @@ export default function Customers({}: CustomersProps) {
               </Button>
                 
               <PermissionGate permission={PERMISSIONS.CUSTOMERS_EXPORT}>
-                <Button variant="outline">
+                <Button 
+                  variant="outline" 
+                  onClick={handleExportCsv}
+                >
                   <Download className="h-4 w-4 mr-2" />
-                    Export CSV
-                  </Button>
-                </PermissionGate>
+                  Export CSV
+                </Button>
+              </PermissionGate>
               </div>
 
               {/* Advanced Filters */}
@@ -303,28 +393,84 @@ export default function Customers({}: CustomersProps) {
         {/* Customer List */}
         <Card>
           <CardHeader>
-            <CardTitle>Customer List ({filteredCustomers.length})</CardTitle>
-            {hasActiveFilters && (
+            <CardTitle>
+              Customer List 
+              {pagination && (
+                <span className="text-lg font-normal text-muted-foreground ml-2">
+                  ({pagination.total})
+                </span>
+              )}
+            </CardTitle>
+            {pagination && hasActiveFilters && (
               <CardDescription className="text-blue-600">
-                Showing {filteredCustomers.length} of {customers.length} customers
+                Showing {pagination.from}-{pagination.to} of {pagination.total} customers
+              </CardDescription>
+            )}
+            {pagination && !hasActiveFilters && (
+              <CardDescription>
+                Showing {pagination.from}-{pagination.to} of {pagination.total} customers
             </CardDescription>
             )}
           </CardHeader>
           <CardContent>
+            {customersLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin" />
+                <span className="ml-2">Loading customers...</span>
+              </div>
+            ) : customersError ? (
+              <div className="text-center py-8">
+                <p className="text-red-600 mb-4">{customersError}</p>
+                <Button onClick={() => fetchCustomers(getCurrentFilters())}>
+                  Try Again
+                </Button>
+              </div>
+            ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-3 font-medium">Name</th>
-                    <th className="text-left p-3 font-medium">Email</th>
-                    <th className="text-left p-3 font-medium">Status</th>
-                    <th className="text-left p-3 font-medium">Total Points</th>
-                    <th className="text-left p-3 font-medium">Signup Date</th>
-                    <th className="text-left p-3 font-medium">Actions</th>
-                  </tr>
-                </thead>
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-3 font-medium">
+                        <button
+                          onClick={() => handleSort('first_name')}
+                          className="flex items-center gap-2 hover:text-blue-600 transition-colors"
+                        >
+                          Name
+                          {getSortIcon('first_name')}
+                        </button>
+                      </th>
+                      <th className="text-left p-3 font-medium">
+                        <button
+                          onClick={() => handleSort('email')}
+                          className="flex items-center gap-2 hover:text-blue-600 transition-colors"
+                        >
+                          Email
+                          {getSortIcon('email')}
+                        </button>
+                      </th>
+                      <th className="text-left p-3 font-medium">Status</th>
+                      <th className="text-left p-3 font-medium">Total Points</th>
+                      <th className="text-left p-3 font-medium">
+                        <button
+                          onClick={() => handleSort('created_at')}
+                          className="flex items-center gap-2 hover:text-blue-600 transition-colors"
+                        >
+                          Signup Date
+                          {getSortIcon('created_at')}
+                        </button>
+                      </th>
+                      <th className="text-left p-3 font-medium">Actions</th>
+                    </tr>
+                  </thead>
                 <tbody>
-                  {filteredCustomers.map((customer) => (
+                    {customers.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="text-center py-8 text-muted-foreground">
+                          No customers found
+                        </td>
+                      </tr>
+                    ) : (
+                      customers.map((customer) => (
                     <tr key={customer.id} className="border-b hover:bg-muted/50">
                       <td className="p-3">
                         <div className="font-medium">{customer.name}</div>
@@ -461,12 +607,91 @@ export default function Customers({}: CustomersProps) {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                      ))
+                    )}
                 </tbody>
               </table>
             </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* Pagination */}
+        {pagination && pagination.last_page > 1 && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <p className="text-sm text-muted-foreground">
+                    Rows per page:
+                  </p>
+                  <select
+                    value={perPage}
+                    onChange={(e) => handlePerPageChange(Number(e.target.value))}
+                    className="h-9 w-16 rounded border border-input bg-background px-2 text-sm"
+                  >
+                    <option value={10}>10</option>
+                    <option value={15}>15</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <p className="text-sm text-muted-foreground">
+                    Page {pagination.current_page} of {pagination.last_page}
+                  </p>
+                  
+                  <div className="flex items-center space-x-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(pagination.current_page - 1)}
+                      disabled={pagination.current_page <= 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    
+                    {/* Page numbers */}
+                    {Array.from({ length: Math.min(5, pagination.last_page) }, (_, i) => {
+                      let pageNum;
+                      if (pagination.last_page <= 5) {
+                        pageNum = i + 1;
+                      } else if (pagination.current_page <= 3) {
+                        pageNum = i + 1;
+                      } else if (pagination.current_page >= pagination.last_page - 2) {
+                        pageNum = pagination.last_page - 4 + i;
+                      } else {
+                        pageNum = pagination.current_page - 2 + i;
+                      }
+                      
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={pageNum === pagination.current_page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(pageNum)}
+                          className="w-8 h-8 p-0"
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(pagination.current_page + 1)}
+                      disabled={pagination.current_page >= pagination.last_page}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </AdminLayout>
   );

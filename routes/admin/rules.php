@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
+use App\Http\Controllers\Backend\Rule\RulePageController;
 
 // Rules Engine Routes
-Route::get('/rules', function () {
-    return Inertia::render('Rules');
-})->middleware(['auth.custom'])->name('rules');
+Route::get('/rules', [RulePageController::class, 'index'])
+    ->middleware(['auth.custom'])
+    ->name('rules');

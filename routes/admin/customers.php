@@ -1,9 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
+use App\Http\Controllers\Backend\User\UserController;
 
-// Customer Management Routes
-Route::get('/customers', function () {
-    return Inertia::render('Customers');
-})->middleware(['auth.custom'])->name('customers');
+// Customer Management Frontend Route
+Route::get('/customers', [UserController::class, 'customers'])
+    ->middleware(['auth.custom'])
+    ->name('customers');
+
+// Customer API Routes - separate prefix to avoid conflicts
+Route::prefix('api/customers')->name('api.customers.')->group(function () {
+    Route::get('/', [UserController::class, 'index'])->name('index');
+    Route::get('/{id}', [UserController::class, 'show'])->name('show');
+    Route::get('/export/csv', [UserController::class, 'exportCsv'])->name('export-csv');
+});

@@ -3,6 +3,9 @@
 namespace App\Models\User;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\User\Traits\Attributes\UserAttributes;
+use App\Models\User\Traits\Relationships\UserRelationships;
+use App\Models\User\Traits\Scopes\UserScopes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,7 +15,7 @@ use Spatie\Permission\Models\Permission;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, UserAttributes, UserRelationships, UserScopes;
 
     /**
      * The attributes that are mass assignable.
@@ -53,48 +56,8 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Get the user's full name
-     */
-    public function getFullNameAttribute(): string
-    {
-        return trim($this->first_name . ' ' . $this->last_name);
-    }
-
-    /**
-     * Get all loyalty permissions for the user
-     */
-    public function getLoyaltyPermissions(): array
-    {
-        $permissions = $this->getAllPermissions();
-        $loyaltyPermissions = [];
-        
-        foreach ($permissions as $permission) {
-            if (str_starts_with($permission->name, 'loyalty-') || 
-                in_array($permission->menu_type, [
-                    'loyalty_dashboard', 'loyalty_customers', 'loyalty_rules', 
-                    'loyalty_campaigns', 'loyalty_rewards', 'loyalty_settings', 'loyalty_login'
-                ])) {
-                $loyaltyPermissions[] = $permission->name;
-            }
-        }
-        
-        return $loyaltyPermissions;
-    }
-
-    /**
-     * Check if user has specific loyalty permission
-     */
-    public function hasLoyaltyPermission(string $permission): bool
-    {
-        return $this->hasPermissionTo($permission);
-    }
-
-    /**
-     * Check if user can access loyalty system
-     */
-    public function canAccessLoyalty(): bool
-    {
-        return $this->hasPermissionTo('loyalty-login.view');
-    }
+    // All methods moved to Traits:
+    // - UserAttributes: getFullNameAttribute, getDisplayNameAttribute, getStatusTextAttribute, etc.
+    // - UserRelationships: getLoyaltyPermissions, hasLoyaltyPermission, canAccessLoyalty, etc.
+    // - UserScopes: scopeActive, scopeInactive, scopeSearch, scopeByDateFilter, etc.
 }

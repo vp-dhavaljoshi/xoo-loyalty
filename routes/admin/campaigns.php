@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
+use App\Http\Controllers\Backend\Campaign\CampaignPageController;
 
 // Campaign Management Routes
-Route::get('/campaigns', function () {
-    return Inertia::render('Campaigns');
-})->middleware(['auth.custom'])->name('campaigns');
+Route::get('/campaigns', [CampaignPageController::class, 'index'])
+    ->middleware(['auth.custom'])
+    ->name('campaigns');
