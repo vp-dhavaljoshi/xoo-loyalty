@@ -33,7 +33,6 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children, auth }) => {
-  console.log('AuthProvider rendered:', auth);
   const [safeAuth, setSafeAuth] = useState<AuthData>(auth || {
     user: null,
     permissions: []
@@ -41,8 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, auth }) =>
 
   // Update state when auth prop changes (on page navigation)
   React.useEffect(() => {
-    console.log('Auth context updated:', auth);
-    if (auth) {
+    if (auth && auth.user) {
       // Ensure permissions is always an array
       const safeAuthData = {
         user: auth.user,
@@ -50,42 +48,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, auth }) =>
       };
       
       setSafeAuth(safeAuthData);
-      
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Auth context updated:', {
-          user: safeAuthData.user,
-          permissionsCount: safeAuthData.permissions.length,
-          permissions: safeAuthData.permissions,
-          isAuthenticated: !!safeAuthData.user
-        });
-      }
+    } else {
+      // Clear auth state when user is logged out
+      setSafeAuth({
+        user: null,
+        permissions: []
+      });
+    }
+  }, [auth]);
+
+  // Clear any potential localStorage/sessionStorage data on logout
+  React.useEffect(() => {
+    if (!auth || !auth.user) {
+      // Clear any stored authentication data
+      localStorage.removeItem('auth');
+      sessionStorage.removeItem('auth');
     }
   }, [auth]);
 
   const setAuth = (auth: AuthData) => {
-    console.log('setAuth called:', auth);
     setSafeAuth(auth);
   };
  
   const hasPermission = (permission: string): boolean => {
     if (!safeAuth.permissions || !Array.isArray(safeAuth.permissions)) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Permissions array is not available or not an array:', safeAuth.permissions);
-      }
       return false;
     }
     
-    const hasAccess = safeAuth.permissions.includes(permission);
-    
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`hasPermission(${permission}): ${hasAccess}`, {
-        permissions: safeAuth.permissions,
-        permission,
-        found: safeAuth.permissions.includes(permission)
-      });
-    }
-    
-    return hasAccess;
+    return safeAuth.permissions.includes(permission);
   };
 
   const hasLoyaltyPermission = (permission: string): boolean => {

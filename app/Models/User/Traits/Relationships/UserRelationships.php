@@ -44,23 +44,11 @@ trait UserRelationships
     }
 
     /**
-     * Get user's loyalty points (placeholder for future implementation)
-     */
-    public function loyaltyPoints()
-    {
-        // This would be implemented when loyalty points system is added
-        // return $this->hasMany(LoyaltyPoint::class);
-        return collect([]);
-    }
-
-    /**
-     * Get user's loyalty transactions (placeholder for future implementation)
+     * Get user's loyalty transactions
      */
     public function loyaltyTransactions()
     {
-        // This would be implemented when loyalty transactions system is added
-        // return $this->hasMany(LoyaltyTransaction::class);
-        return collect([]);
+        return $this->hasMany(\App\Models\Backend\LoyaltyTransaction\LoyaltyTransaction::class);
     }
 
     /**
@@ -68,8 +56,7 @@ trait UserRelationships
      */
     public function getTotalLoyaltyPoints(): int
     {
-        // Placeholder implementation - would be replaced with actual points calculation
-        return rand(100, 2500);
+        return \App\Models\Backend\LoyaltyTransaction\LoyaltyTransaction::getPointsBalance($this->id);
     }
 
     /**
@@ -91,11 +78,10 @@ trait UserRelationships
     }
 
     /**
-     * Get user's recent loyalty activity (placeholder for future implementation)
+     * Get user's recent loyalty activity
      */
     public function getRecentLoyaltyActivity(int $limit = 10)
     {
-        // This would be implemented when loyalty activity system is added
-        return collect([]);
+        return \App\Models\Backend\LoyaltyTransaction\LoyaltyTransaction::getUserTransactionHistory($this->id, $limit);
     }
 }

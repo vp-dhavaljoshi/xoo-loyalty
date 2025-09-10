@@ -66,3 +66,26 @@ if (!function_exists('getLoginUserArray')) {
         }
     }
 }
+
+
+if (! function_exists('includeRouteFiles')) {
+    /**
+     * Loops through a folder and requires all PHP files
+     * Searches sub-directories as well.
+     */
+    function includeRouteFiles(string $folder): void
+    {
+        try {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($folder)
+            );
+            foreach ($iterator as $file) {
+                if ($file->isFile() && $file->isReadable() && $file->getExtension() === 'php') {
+                    require $file->getPathname();
+                }
+            }
+        } catch (Exception $ex) {
+            Log::error($ex);
+        }
+    }
+}

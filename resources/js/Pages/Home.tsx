@@ -43,7 +43,16 @@ interface HomeProps {
 export default function Home({ error }: HomeProps) {
     const { user } = useAuth();
     const handleLogout = () => {
-        router.post('/logout');
+        router.post('/logout', {}, {
+            onSuccess: () => {
+                // Force a page reload to ensure clean state
+                window.location.reload();
+            },
+            onError: () => {
+                // Force a page reload even on error to ensure clean state
+                window.location.reload();
+            }
+        });
     };
 
     const features = [

@@ -25,28 +25,13 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const { user } = useAuth();
   const { url } = usePage();
   
-  // Debug logging
+  // Component initialization
   React.useEffect(() => {
-    console.log('AdminLayout rendered:', {
-      user,
-      url,
-      hasUser: !!user
-    });
-    if (process.env.NODE_ENV === 'development') {
-      console.log('AdminLayout rendered:', {
-        user,
-        url,
-        hasUser: !!user
-      });
-    }
+    // Component mounted
   }, [user, url]);
   
   // Get page title based on current URL
   const getPageTitle = () => {
-    // Debug logging
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Current URL for title:', url);
-    }
     
     // Handle empty or undefined URL
     if (!url || url === '') return 'Dashboard';
@@ -86,7 +71,16 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   };
 
   const handleLogout = () => {
-    router.post('/logout');
+    router.post('/logout', {}, {
+      onSuccess: () => {
+        // Force a page reload to ensure clean state
+        window.location.reload();
+      },
+      onError: () => {
+        // Force a page reload even on error to ensure clean state
+        window.location.reload();
+      }
+    });
   };
 
   // Get the current page title
@@ -119,12 +113,6 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
             </div>
             
             <div className="flex items-center gap-1 sm:gap-3">
-              <Button className="bg-white/10 hover:bg-white/20 text-header-foreground border-0 text-xs sm:text-sm hidden sm:inline-flex">
-                Lab Store
-              </Button>
-              <Button className="bg-white/10 hover:bg-white/20 text-header-foreground border-0 text-xs sm:text-sm hidden sm:inline-flex">
-                Online Ordering
-              </Button>
               
               {/* User Profile Dropdown */}
               <DropdownMenu>

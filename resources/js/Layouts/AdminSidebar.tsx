@@ -103,24 +103,9 @@ export const AdminSidebar = () => {
   const { url } = usePage();
   const { hasPermission, permissions } = useAuth();
   
-  // Debug logging
+  // Component initialization
   React.useEffect(() => {
-    console.log('AdminSidebar rendered:', {
-      permissions,
-      hasPermission,
-      url
-    });
-    if (process.env.NODE_ENV === 'development') {
-      console.log('AdminSidebar - Permissions:', permissions);
-      console.log('AdminSidebar - Permission checks:', {
-        dashboard: hasPermission('loyalty-dashboard.view'),
-        customers: hasPermission('loyalty-customers.view'),
-        rules: hasPermission('rules.view'),
-        campaigns: hasPermission('campaigns.view'),
-        rewards: hasPermission('rewards.view'),
-        settings: hasPermission('loyalty-settings.view')
-      });
-    }
+    // Component mounted
   }, [permissions, hasPermission]);
   
   const isActive = (itemUrl: string) => {
@@ -155,10 +140,7 @@ export const AdminSidebar = () => {
             const active = isActive(item.url);
             const hasAccess = hasPermission(item.permission);
             
-            // Debug logging
-            if (process.env.NODE_ENV === 'development') {
-              console.log(`Checking ${item.title}: permission=${item.permission}, hasAccess=${hasAccess}`);
-            }
+            // Check permissions
             
             // Check permissions and hide items user doesn't have access to
             if (!hasAccess) {

@@ -3,18 +3,11 @@ import { AdminLayout } from '@/Layouts/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from '@/components/ui/dialog';
+
 import { 
   Search, 
   Download, 
   Eye, 
-  TrendingUp, 
   Filter,
   X,
   ChevronLeft,
@@ -27,8 +20,9 @@ import {
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import { PermissionGate } from '@/components/PermissionGate';
 import { PERMISSIONS } from '@/contexts/AuthContext';
-import { usePaginatedApi, useApiMutation } from '@/hooks/useApi';
+import { usePaginatedApi } from '@/hooks/useApi';
 import { useToast } from '@/hooks/use-toast';
+import TransactionHistoryModal from '@/components/TransactionHistoryModal';
 
 interface Customer {
   id: number;
@@ -39,12 +33,6 @@ interface Customer {
   signupDate: string;
 }
 
-interface Transaction {
-  date: string;
-  type: string;
-  points: string;
-  description: string;
-}
 
 interface CustomersProps {
   // No longer need auth prop - using context
@@ -56,9 +44,7 @@ export default function Customers({}: CustomersProps) {
   const [dateFilter, setDateFilter] = useState<'All' | 'Last 30 days' | 'Last 90 days' | 'Last year'>('All');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [showPointsAdjustment, setShowPointsAdjustment] = useState(false);
-  const [pointsToAdjust, setPointsToAdjust] = useState('');
-  const [adjustmentReason, setAdjustmentReason] = useState('');
+  const [showTransactionHistory, setShowTransactionHistory] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [sortBy, setSortBy] = useState('created_at');
@@ -75,8 +61,8 @@ export default function Customers({}: CustomersProps) {
     goToPage,
     changePerPage,
   } = usePaginatedApi<Customer>('/admin/api/customers', {
-    onSuccess: (data) => {
-      console.log('API Success:', data);
+    onSuccess: () => {
+      // Data loaded successfully
     },
     onError: (error) => {
       console.error('API Error:', error);
@@ -87,26 +73,6 @@ export default function Customers({}: CustomersProps) {
       });
     },
   });
-
-  // const { mutate: updateUserStatus } = useApiMutation(
-  //   '/admin/api/customers/status',
-  //   {
-  //     onSuccess: () => {
-  //       toast({
-  //         title: "Success",
-  //         description: "User status updated successfully.",
-  //       });
-  //       fetchCustomers(getCurrentFilters());
-  //     },
-  //     onError: () => {
-  //       toast({
-  //         title: "Error",
-  //         description: "Failed to update user status. Please try again.",
-  //         variant: "destructive",
-  //       });
-  //     },
-  //   }
-  // );
 
   const handleExportCsv = async () => {
     try {
@@ -185,33 +151,6 @@ export default function Customers({}: CustomersProps) {
   const customers = customersData?.users || [];
   const pagination = customersData?.pagination;
 
-  const transactions: Transaction[] = [
-    {
-      date: '2024-01-15',
-      type: 'Signup Bonus',
-      points: '+100',
-      description: 'Welcome bonus for new account'
-    },
-    {
-      date: '2024-01-20',
-      type: 'Product Points',
-      points: '+50',
-      description: 'Purchase: Premium Coffee Beans'
-    },
-    {
-      date: '2024-02-01',
-      type: 'Cart Points',
-      points: '+200',
-      description: 'Cart total over $100'
-    },
-    {
-      date: '2024-02-15',
-      type: 'Redemption',
-      points: '-100',
-      description: 'Redeemed: $10 discount coupon'
-    }
-  ];
-
   // Handle pagination
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -244,30 +183,7 @@ export default function Customers({}: CustomersProps) {
       ? <ArrowUp className="h-4 w-4 text-blue-600" />
       : <ArrowDown className="h-4 w-4 text-blue-600" />;
   };
-
-  const handlePointsAdjustment = () => {
-    // Here you would typically make an API call to adjust points
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Adjusting points:', {
-        customer: selectedCustomer?.name,
-        points: pointsToAdjust,
-        reason: adjustmentReason
-      });
-    }
-    
-    // TODO: Implement API call to adjust customer points
-    // router.post('/admin/customers/adjust-points', { 
-    //   customer_id: selectedCustomer?.id, 
-    //   points: pointsToAdjust, 
-    //   reason: adjustmentReason 
-    // });
-    
-    // Reset form and close modal
-    setPointsToAdjust('');
-    setAdjustmentReason('');
-    setShowPointsAdjustment(false);
-  };
-
+  
   const clearFilters = () => {
     setSearchTerm('');
     setStatusFilter('All');
@@ -496,124 +412,17 @@ export default function Customers({}: CustomersProps) {
                       <td className="p-2 sm:p-3">
                         <div className="flex items-center gap-1 sm:gap-2">
                           {/* Eye icon - Transaction History */}
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => setSelectedCustomer(customer)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
-                              <DialogHeader>
-                                <DialogTitle>Transaction History - {customer.name}</DialogTitle>
-                              </DialogHeader>
-                              
-                              {/* Customer Summary */}
-                              <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <h3 className="text-lg font-semibold text-blue-900">{customer.name}</h3>
-                                    <p className="text-blue-700">{customer.email}</p>
-                                  </div>
-                                  <div className="text-right">
-                                    <div className="text-2xl font-bold text-blue-900">{customer.totalPoints}</div>
-                                    <div className="text-sm text-blue-700">Total Points</div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Transactions Table */}
-                              <div className="space-y-3">
-                                <h4 className="font-medium">Recent Transactions</h4>
-                                <div className="space-y-2">
-                                  {transactions.map((transaction, index) => (
-                                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                      <div className="flex-1">
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-sm font-medium">{transaction.date}</span>
-                                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-200 text-gray-700">
-                                            {transaction.type}
-                                          </span>
-                                        </div>
-                                        <p className="text-sm text-gray-600 mt-1">{transaction.description}</p>
-                                      </div>
-                                      <span className={`font-medium ${
-                                        transaction.points.startsWith('+') ? 'text-green-600' : 'text-red-600'
-                                      }`}>
-                                        {transaction.points}
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-
-                          {/* Arrow icon - Manual Points Adjustment */}
-                          <Dialog open={showPointsAdjustment} onOpenChange={setShowPointsAdjustment}>
-                            <PermissionGate permission={PERMISSIONS.CUSTOMERS_ADJUST_POINTS}>
-                              <DialogTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => {
-                                    setSelectedCustomer(customer);
-                                    setShowPointsAdjustment(true);
-                                  }}
-                                  className="h-8 w-8 p-0"
-                                >
-                                  <TrendingUp className="h-4 w-4" />
-                                </Button>
-                              </DialogTrigger>
-                            </PermissionGate>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Manual Points Adjustment</DialogTitle>
-                              </DialogHeader>
-                              
-                              <div className="space-y-4">
-                                <div className="bg-gray-50 p-3 rounded-lg">
-                                  <p className="text-sm text-gray-600">Customer: {customer.name}</p>
-                                  <p className="text-sm text-gray-600">Current Points: {customer.totalPoints}</p>
-                                </div>
-                                
-                                <div className="space-y-2">
-                                  <label className="text-sm font-medium">Points to Add/Subtract</label>
-                                  <Input
-                                    placeholder="Enter points (use negative for subtraction)"
-                                    value={pointsToAdjust}
-                                    onChange={(e) => setPointsToAdjust(e.target.value)}
-                                    type="number"
-                                  />
-                                </div>
-                                
-                                <div className="space-y-2">
-                                  <label className="text-sm font-medium">Reason for Adjustment</label>
-                                  <Input
-                                    placeholder="Enter reason for this adjustment"
-                                    value={adjustmentReason}
-                                    onChange={(e) => setAdjustmentReason(e.target.value)}
-                                  />
-                                </div>
-                                
-                                <div className="flex justify-end gap-3 pt-4">
-                                  <Button 
-                                    variant="outline" 
-                                    onClick={() => setShowPointsAdjustment(false)}
-                                  >
-                                    Cancel
-                                  </Button>
-                                  <Button onClick={handlePointsAdjustment}>
-                                    Apply Adjustment
-                        </Button>
-                                </div>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedCustomer(customer);
+                              setShowTransactionHistory(true);
+                            }}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -702,6 +511,22 @@ export default function Customers({}: CustomersProps) {
             </CardContent>
           </Card>
         )}
+
+        {/* Transaction History Modal */}
+        <TransactionHistoryModal
+          customer={selectedCustomer}
+          isOpen={showTransactionHistory}
+          onClose={() => {
+            setShowTransactionHistory(false);
+            setSelectedCustomer(null);
+          }}
+          onCustomerUpdate={(updatedCustomer) => {
+            // Refresh the customer list to get updated points
+            if (updatedCustomer) {
+              fetchCustomers(getCurrentFilters());
+            }
+          }}
+        />
       </div>
     </AdminLayout>
   );

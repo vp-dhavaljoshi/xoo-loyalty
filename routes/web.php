@@ -2,39 +2,28 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 // Guest routes - accessible to everyone
 Route::get('/', function () {
     // If user is authenticated, redirect to dashboard
-    if (auth()->check()) {
+    if (Auth::check()) {
         return redirect()->route('admin.dashboard');
     }
     
-    // If not authenticated, show home page
+    // If not authenticated, show home page with no auth data
     return Inertia::render('Home', [
-        'error' => session('error')
+        'error' => session('error'),
+        'auth' => [
+            'user' => null,
+            'permissions' => []
+        ]
     ]);
 })->name('home');
 
-// Logout route
-Route::post('/logout', function () {
-    auth()->logout();
-    request()->session()->invalidate();
-    request()->session()->regenerateToken();
-    return redirect()->route('home');
-})->name('logout');
+// Admin routes - protected by auth middleware
+Route::prefix('admin')->name('admin.')->middleware('auth.custom')->group(function () {
+    includeRouteFiles(__DIR__.'/admin/');
+});
 
-// Include admin routes
-require __DIR__.'/admin.php';
-
-// Include profile routes
-require __DIR__.'/profile.php';
-
-// Include auth routes
 require __DIR__.'/auth.php';
-
-// Include debug routes (REMOVE IN PRODUCTION)
-if (app()->environment('local', 'development')) {
-    require __DIR__.'/debug.php';
-}
-

@@ -77,11 +77,6 @@ createInertiaApp({
     },
     setup({ el, App, props }) {
         const root = createRoot(el);
-        console.log('Inertia props:', props);
-        // Debug logging for development
-        if (process.env.NODE_ENV === 'development') {
-            console.log('Auth data:', props.initialPage.props.auth);
-        }
         
         // Ensure we have a fallback auth object
         const authData = props.initialPage.props.auth as any || { 

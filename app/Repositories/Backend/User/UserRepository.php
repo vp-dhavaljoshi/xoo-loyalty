@@ -179,17 +179,14 @@ class UserRepository
     }
 
     /**
-     * Get user's total points (placeholder - implement based on your points system)
+     * Get user's total points
      *
      * @param int $userId
      * @return int
      */
     private function getUserTotalPoints(int $userId): int
     {
-        // This is a placeholder implementation
-        // You would need to implement this based on your actual points system
-        // For now, returning a random number for demonstration
-        return rand(100, 2500);
+        return \App\Models\Backend\LoyaltyTransaction\LoyaltyTransaction::getPointsBalance($userId);
     }
 
     /**
