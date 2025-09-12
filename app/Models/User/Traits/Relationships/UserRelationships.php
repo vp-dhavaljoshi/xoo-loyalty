@@ -2,7 +2,6 @@
 
 namespace App\Models\User\Traits\Relationships;
 
-use Spatie\Permission\Models\Permission;
 
 trait UserRelationships
 {
@@ -48,7 +47,7 @@ trait UserRelationships
      */
     public function loyaltyTransactions()
     {
-        return $this->hasMany(\App\Models\Backend\LoyaltyTransaction\LoyaltyTransaction::class);
+        return $this->hasMany(config('models.models.loyalty_transaction.class'));
     }
 
     /**
@@ -56,7 +55,7 @@ trait UserRelationships
      */
     public function getTotalLoyaltyPoints(): int
     {
-        return \App\Models\Backend\LoyaltyTransaction\LoyaltyTransaction::getPointsBalance($this->id);
+        return config('models.models.loyalty_transaction.class')::getPointsBalance($this->id);
     }
 
     /**
@@ -82,6 +81,6 @@ trait UserRelationships
      */
     public function getRecentLoyaltyActivity(int $limit = 10)
     {
-        return \App\Models\Backend\LoyaltyTransaction\LoyaltyTransaction::getUserTransactionHistory($this->id, $limit);
+        return config('models.models.loyalty_transaction.class')::getUserTransactionHistory($this->id, $limit);
     }
 }

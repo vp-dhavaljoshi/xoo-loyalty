@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use Spatie\Permission\Models\Permission;
 
 class User extends Authenticatable
 {
@@ -55,9 +54,4 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-
-    // All methods moved to Traits:
-    // - UserAttributes: getFullNameAttribute, getDisplayNameAttribute, getStatusTextAttribute, etc.
-    // - UserRelationships: getLoyaltyPermissions, hasLoyaltyPermission, canAccessLoyalty, etc.
-    // - UserScopes: scopeActive, scopeInactive, scopeSearch, scopeByDateFilter, etc.
 }

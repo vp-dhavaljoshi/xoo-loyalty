@@ -2,8 +2,6 @@
 
 namespace App\Models\Backend\LoyaltyTransaction\Traits\Relationships;
 
-use App\Models\User\User;
-
 trait LoyaltyTransactionRelationships
 {
     /**
@@ -11,7 +9,7 @@ trait LoyaltyTransactionRelationships
      */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(config('models.models.user.class'));
     }
 
     /**

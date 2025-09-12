@@ -3,7 +3,6 @@
 namespace App\Repositories\Backend\User;
 
 use App\Constants\AppConstants;
-use App\Models\User\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -27,7 +26,7 @@ class UserRepository
         string $sortDirection = AppConstants::SORT_DESC): array
     {
         try {
-            $query = User::query();
+            $query = config('models.models.user.class')::query();
 
             // Apply search filter using scope
             if (!empty($filters['search'])) {
@@ -134,7 +133,7 @@ class UserRepository
     public function getUserById(int $id): array
     {
         try {
-            $user = User::find($id);
+            $user = config('models.models.user.class')::find($id);
             
             if (!$user) {
                 return [
@@ -186,7 +185,7 @@ class UserRepository
      */
     private function getUserTotalPoints(int $userId): int
     {
-        return \App\Models\Backend\LoyaltyTransaction\LoyaltyTransaction::getPointsBalance($userId);
+        return config('models.models.loyalty_transaction.class')::getPointsBalance($userId);
     }
 
     /**
@@ -198,7 +197,7 @@ class UserRepository
     public function exportUsersToCsv(array $filters = []): array
     {
         try {
-            $query = User::query();
+            $query = config('models.models.user.class')::query();
 
             // Apply same filters as getPaginatedUsers using scopes
             if (!empty($filters['search'])) {

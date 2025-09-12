@@ -3,7 +3,6 @@
 namespace App\Repositories\Backend\LoyaltySetting;
 
 use App\Constants\AppConstants;
-use App\Models\Backend\LoyaltySetting\LoyaltySetting;
 use Illuminate\Support\Facades\Log;
 
 class LoyaltySettingRepository
@@ -16,7 +15,7 @@ class LoyaltySettingRepository
     public function getAllSettings(): array
     {
         try {
-            $settings = LoyaltySetting::getAllSettings();
+            $settings = config('models.models.loyalty_setting.class')::getAllSettings();
 
             return [
                 'status' => AppConstants::STATUS_SUCCESS,
@@ -46,7 +45,7 @@ class LoyaltySettingRepository
     public function updateMultipleSettings(array $settings): array
     {
         try {
-            $result = LoyaltySetting::updateFromArray($settings);
+            $result = config('models.models.loyalty_setting.class')::updateFromArray($settings);
             
             if ($result) {
                 return [
@@ -84,7 +83,7 @@ class LoyaltySettingRepository
     public function getPublicSettings(): array
     {
         try {
-            $settings = LoyaltySetting::getAllSettings();
+            $settings = config('models.models.loyalty_setting.class')::getAllSettings();
             
             // Only return public settings (point value, currency, signup bonus)
             $publicSettings = [
@@ -121,7 +120,7 @@ class LoyaltySettingRepository
     public function getSettingsByCategory(string $category): array
     {
         try {
-            $settings = LoyaltySetting::byCategory($category)->get();
+            $settings = config('models.models.loyalty_setting.class')::byCategory($category)->get();
             $result = [];
             
             foreach ($settings as $setting) {
@@ -196,8 +195,8 @@ class LoyaltySettingRepository
     public function getSetting(string $key, $default = null): array
     {
         try {
-            $value = LoyaltySetting::getValue($key, $default);
-            $setting = LoyaltySetting::where('key', $key)->first();
+            $value = config('models.models.loyalty_setting.class')::getValue($key, $default);
+            $setting = config('models.models.loyalty_setting.class')::where('key', $key)->first();
 
             $result = [
                 'key' => $key,
@@ -239,7 +238,7 @@ class LoyaltySettingRepository
     public function updateSetting(string $key, $value): array
     {
         try {
-            $result = LoyaltySetting::setValue($key, $value);
+            $result = config('models.models.loyalty_setting.class')::setValue($key, $value);
             
             if ($result) {
                 return [
@@ -278,7 +277,7 @@ class LoyaltySettingRepository
     public function getAllSettingsWithDetails(): array
     {
         try {
-            $settings = LoyaltySetting::orderByCategory()->get();
+            $settings = config('models.models.loyalty_setting.class')::orderByCategory()->get();
             $result = [];
             
             foreach ($settings as $setting) {

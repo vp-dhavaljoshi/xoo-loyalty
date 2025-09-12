@@ -3,7 +3,6 @@
 namespace App\Repositories\Backend\LoyaltyTransaction;
 
 use App\Constants\AppConstants;
-use App\Models\Backend\LoyaltyTransaction\LoyaltyTransaction;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -27,7 +26,7 @@ class LoyaltyTransactionRepository
         string $sortDirection = AppConstants::SORT_DESC): array
     {
         try {
-            $query = LoyaltyTransaction::with('user')->active();
+            $query = config('models.models.loyalty_transaction.class')::with('user')->active();
 
             // Apply user filter
             if (!empty($filters['user_id'])) {
@@ -168,7 +167,7 @@ class LoyaltyTransactionRepository
     public function getUserTransactionHistory(int $userId, int $limit = 10): array
     {
         try {
-            $transactions = LoyaltyTransaction::byUser($userId)
+            $transactions = config('models.models.loyalty_transaction.class')::byUser($userId)
                 ->active()
                 ->latest()
                 ->limit($limit)
@@ -220,7 +219,7 @@ class LoyaltyTransactionRepository
     public function getTransactionById(int $id): array
     {
         try {
-            $transaction = LoyaltyTransaction::with('user')->find($id);
+            $transaction = config('models.models.loyalty_transaction.class')::with('user')->find($id);
             
             if (!$transaction) {
                 return [
@@ -282,7 +281,7 @@ class LoyaltyTransactionRepository
     public function createTransaction(array $data): array
     {
         try {
-            $transaction = LoyaltyTransaction::createTransaction($data);
+            $transaction = config('models.models.loyalty_transaction.class')::createTransaction($data);
 
             return [
                 'status' => AppConstants::STATUS_SUCCESS,
@@ -313,7 +312,7 @@ class LoyaltyTransactionRepository
     public function getTransactionStats(array $filters = []): array
     {
         try {
-            $query = LoyaltyTransaction::active();
+            $query = config('models.models.loyalty_transaction.class')::active();
 
             // Apply user filter
             if (!empty($filters['user_id'])) {
