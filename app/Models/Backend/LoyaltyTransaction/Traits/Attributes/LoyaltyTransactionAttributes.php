@@ -76,7 +76,7 @@ trait LoyaltyTransactionAttributes
      */
     public function getFormattedDateAttribute(): string
     {
-        return $this->created_at->format('Y-m-d');
+        return $this->created_at->format('m-d-Y');
     }
 
     /**
@@ -87,6 +87,26 @@ trait LoyaltyTransactionAttributes
     public function getFormattedTimeAttribute(): string
     {
         return $this->created_at->format('H:i:s');
+    }
+
+    /**
+     * Get formatted date and time
+     *
+     * @return string
+     */
+    public function getFormattedDateTimeAttribute(): string
+    {
+        return $this->created_at->format('m-d-Y H:i');
+    }
+
+    /**
+     * Get formatted date and time with seconds
+     *
+     * @return string
+     */
+    public function getFormattedDateTimeWithSecondsAttribute(): string
+    {
+        return $this->created_at->format('m-d-Y H:i:s');
     }
 
     /**

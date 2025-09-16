@@ -14,8 +14,8 @@ class LoyaltySettingsSeeder extends Seeder
     public function run(): void
     {
         $settings = [
-            // Fraud Detection & Point Freezing
-            'fraud_detection_enabled' => 'true',
+            // Fraud Prevention & Point Freezing
+            'fraud_prevention_enabled' => 'true',
             'require_order_completion' => 'true',
             'time_based_freeze' => 'true',
             'freeze_duration_hours' => '24',
@@ -23,7 +23,7 @@ class LoyaltySettingsSeeder extends Seeder
             'customer_age_threshold_days' => '7',
             
             // Points & Currency
-            'point_to_currency_rate' => '0.01',
+            'currency_to_point_rate' => '100',
             'currency' => 'USD',
             
             // Signup Rewards

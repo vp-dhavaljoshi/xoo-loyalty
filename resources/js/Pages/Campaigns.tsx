@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Plus, Edit, Pause, Play, Mail, Users, DollarSign, TrendingUp, Gift, Calendar, Target, Zap, MessageSquare, Bell } from 'lucide-react';
+import { formatDate } from '@/lib/dateUtils';
 
 interface Campaign {
   id: number;
@@ -54,9 +55,9 @@ export default function Campaigns({}: CampaignsProps) {
       channel: 'email',
       subject: "Welcome to our Loyalty Program!",
       targetAudience: "New Members",
-      startDate: "15/01/2024",
-      endDate: "31/12/2024",
-      createdDate: "15/01/2024",
+      startDate: "01-15-2024",
+      endDate: "12-31-2024",
+      createdDate: "01-15-2024",
       customerGroup: "New Members"
     },
     {
@@ -68,9 +69,9 @@ export default function Campaigns({}: CampaignsProps) {
       subject: "Black Friday Exclusive Offers",
       targetAudience: "VIP",
       minPoints: 500,
-      startDate: "29/11/2024",
-      endDate: "30/11/2024",
-      createdDate: "01/11/2024",
+      startDate: "11-29-2024",
+      endDate: "11-30-2024",
+      createdDate: "11-01-2024",
       customerGroup: "VIP Members"
     }
   ]);

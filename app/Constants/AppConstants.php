@@ -28,6 +28,7 @@ class AppConstants
     public const DATE_FILTER_LAST_30_DAYS = 'Last 30 days';
     public const DATE_FILTER_LAST_90_DAYS = 'Last 90 days';
     public const DATE_FILTER_LAST_YEAR = 'Last year';
+    public const DATE_FILTER_CUSTOM = 'Custom';
 
     // Sort Directions
     public const SORT_ASC = 'asc';
@@ -104,6 +105,7 @@ class AppConstants
             self::DATE_FILTER_LAST_30_DAYS,
             self::DATE_FILTER_LAST_90_DAYS,
             self::DATE_FILTER_LAST_YEAR,
+            self::DATE_FILTER_CUSTOM,
         ];
     }
 

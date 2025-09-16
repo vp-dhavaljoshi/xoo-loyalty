@@ -56,9 +56,24 @@ trait UserScopes
     /**
      * Scope to filter users by date range
      */
-    public function scopeByDateFilter($query, string $dateFilter)
+    public function scopeByDateFilter($query, string $dateFilter, string $startDate = '', string $endDate = '')
     {
         if ($dateFilter === AppConstants::DATE_FILTER_ALL) {
+            return $query;
+        }
+
+        // Handle custom date range
+        if ($dateFilter === AppConstants::DATE_FILTER_CUSTOM) {
+            if (!empty($startDate) && !empty($endDate)) {
+                return $query->whereBetween('created_at', [
+                    \Carbon\Carbon::parse($startDate)->startOfDay(),
+                    \Carbon\Carbon::parse($endDate)->endOfDay()
+                ]);
+            } elseif (!empty($startDate)) {
+                return $query->where('created_at', '>=', \Carbon\Carbon::parse($startDate)->startOfDay());
+            } elseif (!empty($endDate)) {
+                return $query->where('created_at', '<=', \Carbon\Carbon::parse($endDate)->endOfDay());
+            }
             return $query;
         }
 

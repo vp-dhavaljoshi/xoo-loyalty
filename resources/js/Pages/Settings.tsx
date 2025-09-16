@@ -24,8 +24,8 @@ interface SettingsProps {
 
 export default function Settings({ settings: initialSettings, settingsLoaded }: SettingsProps) {
   const [settings, setSettings] = useState({
-    // Fraud Detection
-    fraudDetectionEnabled: true,
+    // Fraud Prevention 
+    fraudPreventionEnabled: true,
     requireOrderCompletion: true,
     timeBasedFreeze: true,
     freezeDurationHours: 24,
@@ -34,7 +34,7 @@ export default function Settings({ settings: initialSettings, settingsLoaded }: 
     releaseOnOrderCompletion: true,
     
     // Points & Currency
-    pointToCurrencyRate: 0.01,
+    currencyToPointRate: 100, // $1 USD = 100 points
     currency: 'USD',
     
     // Signup Rewards
@@ -140,33 +140,33 @@ export default function Settings({ settings: initialSettings, settingsLoaded }: 
           </div>
         </div>
 
-        {/* Fraud Detection & Point Freezing */}
+        {/* Fraud Prevention & Point Freezing */}
         <Card>
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5" />
-                Fraud Detection & Point Freezing
+                Fraud Prevention & Point Freezing
               </CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Enable Fraud Detection */}
+            {/* Enable Fraud Prevention */}
             <div className="flex items-center justify-between py-2">
               <div>
-                <h3 className="font-medium text-gray-900">Enable Fraud Detection</h3>
+                <h3 className="font-medium text-gray-900">Enable Fraud Prevention</h3>
                 <p className="text-sm text-gray-500">
                   Automatically freeze suspicious reward points until verification
                 </p>
               </div>
               <Switch
-                checked={settings.fraudDetectionEnabled}
-                onCheckedChange={(checked) => updateSetting('fraudDetectionEnabled', checked)}
+                checked={settings.fraudPreventionEnabled}
+                onCheckedChange={(checked) => updateSetting('fraudPreventionEnabled', checked)}
               />
             </div>
 
-            {/* Conditional content when fraud detection is enabled */}
-            {settings.fraudDetectionEnabled && (
+            {/* Conditional content when fraud prevention is enabled */}
+            {settings.fraudPreventionEnabled && (
               <>
                 {/* Freeze Triggers */}
                 <div className="space-y-4 pt-4">
@@ -212,21 +212,14 @@ export default function Settings({ settings: initialSettings, settingsLoaded }: 
                             <Label htmlFor="freezeDuration" className="text-sm font-medium text-gray-700">
                               Freeze Duration (hours)
                             </Label>
-                            <div className="flex items-center gap-2">
-                              <Input
-                                id="freezeDuration"
-                                type="number"
-                                value={settings.freezeDurationHours}
-                                onChange={(e) => updateSetting('freezeDurationHours', parseInt(e.target.value) || 0)}
-                                className="w-16 h-8"
-                                min="1"
-                              />
-                              <Button variant="outline" size="sm" className="h-8 text-xs">
-                                {settings.freezeDurationHours === 24 ? '1 day' : 
-                                 settings.freezeDurationHours > 24 ? `${Math.round(settings.freezeDurationHours / 24)} days` : 
-                                 `${settings.freezeDurationHours}h`}
-                              </Button>
-                            </div>
+                            <Input
+                              id="freezeDuration"
+                              type="number"
+                              value={settings.freezeDurationHours}
+                              onChange={(e) => updateSetting('freezeDurationHours', parseInt(e.target.value) || 0)}
+                              className="w-16 h-8"
+                              min="1"
+                            />
                           </div>
                         </div>
                       )}
@@ -286,23 +279,20 @@ export default function Settings({ settings: initialSettings, settingsLoaded }: 
           <CardContent>
             <div className="space-y-4">
               <div>
-                <h3 className="font-medium">Point to Currency Rate</h3>
+                <h3 className="font-medium">Currency to Points Rate</h3>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-sm">1 Point =</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-sm">$</span>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={settings.pointToCurrencyRate}
-                      onChange={(e) => updateSetting('pointToCurrencyRate', parseFloat(e.target.value))}
-                      className="w-20"
-                    />
-                  </div>
-                  <span className="text-sm">{settings.currency}</span>
+                  <span className="text-sm">$1 {settings.currency} =</span>
+                  <Input
+                    type="number"
+                    step="1"
+                    value={settings.currencyToPointRate}
+                    onChange={(e) => updateSetting('currencyToPointRate', parseInt(e.target.value))}
+                    className="w-20"
+                  />
+                  <span className="text-sm">points</span>
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
-                  How much each loyalty point is worth in dollars
+                  How many points each dollar is worth
                 </p>
               </div>
             </div>
@@ -371,7 +361,7 @@ export default function Settings({ settings: initialSettings, settingsLoaded }: 
                 </div>
                 <div className="text-2xl font-bold text-orange-900">1,856</div>
                 <div className="text-xs text-orange-700 mt-1">
-                  {settings.fraudDetectionEnabled ? '(Fraud Detection Active)' : '(Fraud Detection Inactive)'}
+                    {settings.fraudPreventionEnabled ? '(Fraud Prevention Active)' : '(Fraud Prevention Inactive)'}
                 </div>
               </div>
 
@@ -382,10 +372,10 @@ export default function Settings({ settings: initialSettings, settingsLoaded }: 
                   <span className="text-sm font-medium text-purple-800">Total Value</span>
                 </div>
                 <div className="text-2xl font-bold text-purple-900">
-                  ${(45678 * settings.pointToCurrencyRate).toFixed(2)}
+                  ${(45678 / settings.currencyToPointRate).toFixed(2)}
                 </div>
                 <div className="text-xs text-purple-700 mt-1">
-                  (Based on current rate: ${settings.pointToCurrencyRate}/point)
+                  (Based on current rate: $1 = {settings.currencyToPointRate} points)
                 </div>
               </div>
             </div>

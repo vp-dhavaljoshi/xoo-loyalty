@@ -8,8 +8,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, RefreshCw, Plus } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { formatDateTime } from '@/lib/dateUtils';
 
 interface Transaction {
   id: number;
@@ -22,6 +23,7 @@ interface Transaction {
   points_color: string;
   points_balance_after: number;
   formatted_date: string;
+  formatted_date_time: string;
   created_at: string;
 }
 
@@ -117,9 +119,6 @@ export default function TransactionHistoryModal({
     }
   }, [isOpen, customer]);
 
-  const handleRefresh = () => {
-    loadTransactions();
-  };
 
   const handleManualAdjustment = async () => {
     if (!customer || !adjustmentPoints || !adjustmentDescription.trim()) {
@@ -227,7 +226,8 @@ export default function TransactionHistoryModal({
                 <Plus className="h-4 w-4" />
                 <span>Adjust Points</span>
               </Button>
-              <Button
+              {/* Refresh button temporarily hidden */}
+              {/* <Button
                 variant="outline"
                 size="sm"
                 onClick={handleRefresh}
@@ -239,7 +239,7 @@ export default function TransactionHistoryModal({
                   <RefreshCw className="h-4 w-4" />
                 )}
                 <span className="ml-2">Refresh</span>
-              </Button>
+              </Button> */}
             </div>
           </div>
         </DialogHeader>
@@ -347,7 +347,7 @@ export default function TransactionHistoryModal({
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left py-3 px-4 font-medium text-sm text-gray-700">Date</th>
+                      <th className="text-left py-3 px-4 font-medium text-sm text-gray-700">Date & Time</th>
                       <th className="text-left py-3 px-4 font-medium text-sm text-gray-700">Type</th>
                       <th className="text-left py-3 px-4 font-medium text-sm text-gray-700">Points</th>
                       <th className="text-left py-3 px-4 font-medium text-sm text-gray-700">Description</th>
@@ -357,7 +357,7 @@ export default function TransactionHistoryModal({
                     {transactions.map((transaction) => (
                       <tr key={transaction.id} className="hover:bg-gray-50 transition-colors">
                         <td className="py-4 px-4 text-sm text-gray-900 font-medium">
-                          {transaction.formatted_date}
+                          {transaction.formatted_date_time || transaction.formatted_date}
                         </td>
                         <td className="py-4 px-4">
                           <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${transaction.transaction_type_color}`}>
@@ -385,7 +385,7 @@ export default function TransactionHistoryModal({
         <div className="flex-shrink-0 pt-4 border-t">
           <div className="flex justify-between items-center text-sm text-muted-foreground">
             <span>Showing {transactions.length} recent transactions</span>
-            <span>Last updated: {new Date().toLocaleTimeString()}</span>
+            <span>Last updated: {formatDateTime(new Date())}</span>
           </div>
         </div>
       </DialogContent>

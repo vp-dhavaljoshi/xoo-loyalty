@@ -87,7 +87,7 @@ class LoyaltySettingRepository
             
             // Only return public settings (point value, currency, signup bonus)
             $publicSettings = [
-                'pointToCurrencyRate' => $settings['pointToCurrencyRate'],
+                'currencyToPointRate' => $settings['currencyToPointRate'],
                 'currency' => $settings['currency'],
                 'signupBonusPoints' => $settings['signupBonusPoints'],
             ];

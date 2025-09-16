@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Plus, Edit, Trash2, Gift, Users, DollarSign, TrendingUp, Star, Calendar, Target, Zap, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { formatDate } from '@/lib/dateUtils';
 
 interface Reward {
   id: number;
@@ -55,9 +56,9 @@ export default function Rewards({}: RewardsProps) {
       pointsRequired: 100,
       category: 'physical',
       availability: 'unlimited',
-      startDate: "01/01/2024",
-      endDate: "31/12/2024",
-      createdDate: "01/01/2024",
+      startDate: "01-01-2024",
+      endDate: "12-31-2024",
+      createdDate: "01-01-2024",
       redemptionCount: 45
     },
     {
@@ -69,9 +70,9 @@ export default function Rewards({}: RewardsProps) {
       category: 'discount',
       availability: 'limited',
       stockQuantity: 50,
-      startDate: "01/01/2024",
-      endDate: "31/12/2024",
-      createdDate: "01/01/2024",
+      startDate: "01-01-2024",
+      endDate: "12-31-2024",
+      createdDate: "01-01-2024",
       redemptionCount: 12
     },
     {
@@ -83,9 +84,9 @@ export default function Rewards({}: RewardsProps) {
       category: 'experience',
       availability: 'limited',
       stockQuantity: 10,
-      startDate: "01/06/2024",
-      endDate: "31/12/2024",
-      createdDate: "01/05/2024",
+      startDate: "06-01-2024",
+      endDate: "12-31-2024",
+      createdDate: "05-01-2024",
       redemptionCount: 0
     }
   ]);

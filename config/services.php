@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'punchh' => [
+        'base_uri' => env('PUNCHH_BASE_URI', 'https://api.us-west.punchh.com'),
+        'client_secret' => env('PUNCHH_CLIENT_SECRET', ''),
+        'client_key' => env('PUNCHH_CLIENT_KEY', ''),
+        'service' => env('PUNCHH_SERVICE', false),
+    ],
+
 ];

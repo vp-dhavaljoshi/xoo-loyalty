@@ -15,7 +15,11 @@ import {
   Loader2,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  RefreshCw,
+  CheckCircle,
+  XCircle,
+  AlertTriangle
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import { PermissionGate } from '@/components/PermissionGate';
@@ -23,6 +27,7 @@ import { PERMISSIONS } from '@/contexts/AuthContext';
 import { usePaginatedApi } from '@/hooks/useApi';
 import { useToast } from '@/hooks/use-toast';
 import TransactionHistoryModal from '@/components/TransactionHistoryModal';
+import { formatDate } from '@/lib/dateUtils';
 
 interface Customer {
   id: number;
@@ -31,6 +36,9 @@ interface Customer {
   status: 'Active' | 'Inactive';
   totalPoints: number;
   signupDate: string;
+  punchh_token?: string;
+  punchh_sync_status?: 'synced' | 'pending' | 'error' | 'not_connected';
+  last_punchh_sync?: string;
 }
 
 
@@ -41,7 +49,11 @@ interface CustomersProps {
 export default function Customers({}: CustomersProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Inactive'>('All');
-  const [dateFilter, setDateFilter] = useState<'All' | 'Last 30 days' | 'Last 90 days' | 'Last year'>('All');
+  const [dateFilter, setDateFilter] = useState<'All' | 'Last 30 days' | 'Last 90 days' | 'Last year' | 'Custom'>('All');
+  const [customDateRange, setCustomDateRange] = useState({
+    startDate: '',
+    endDate: ''
+  });
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [showTransactionHistory, setShowTransactionHistory] = useState(false);
@@ -49,6 +61,8 @@ export default function Customers({}: CustomersProps) {
   const [perPage, setPerPage] = useState(10);
   const [sortBy, setSortBy] = useState('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [syncingUsers, setSyncingUsers] = useState<Set<number>>(new Set());
+  const [punchhServiceStatus, setPunchhServiceStatus] = useState<boolean>(false);
 
   const { toast } = useToast();
 
@@ -128,6 +142,8 @@ export default function Customers({}: CustomersProps) {
     search: searchTerm,
     status: statusFilter,
     date_filter: dateFilter,
+    start_date: customDateRange.startDate,
+    end_date: customDateRange.endDate,
     page: currentPage,
     per_page: perPage,
     sort_by: sortBy,
@@ -137,6 +153,7 @@ export default function Customers({}: CustomersProps) {
   // Initial load
   useEffect(() => {
     fetchCustomers(getCurrentFilters());
+    checkPunchhServiceStatus();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch customers when filters change (debounced for search)
@@ -146,7 +163,7 @@ export default function Customers({}: CustomersProps) {
     }, searchTerm ? 300 : 0); // Only debounce search, not other filters
 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm, statusFilter, dateFilter, currentPage, perPage, sortBy, sortDirection]);
+  }, [searchTerm, statusFilter, dateFilter, customDateRange.startDate, customDateRange.endDate, currentPage, perPage, sortBy, sortDirection]);
 
   const customers = customersData?.users || [];
   const pagination = customersData?.pagination;
@@ -188,6 +205,7 @@ export default function Customers({}: CustomersProps) {
     setSearchTerm('');
     setStatusFilter('All');
     setDateFilter('All');
+    setCustomDateRange({ startDate: '', endDate: '' });
     setCurrentPage(1);
   };
 
@@ -197,7 +215,123 @@ export default function Customers({}: CustomersProps) {
       : 'bg-gray-100 text-gray-800';
   };
 
-  const hasActiveFilters = searchTerm || statusFilter !== 'All' || dateFilter !== 'All';
+  const hasActiveFilters = searchTerm || statusFilter !== 'All' || dateFilter !== 'All' || customDateRange.startDate || customDateRange.endDate;
+
+  // Punchh sync functions
+  const checkPunchhServiceStatus = async () => {
+    try {
+      const response = await fetch('/admin/api/punchh-sync/status');
+      const data = await response.json();
+      if (data.status) {
+        setPunchhServiceStatus(data.data.punchh_connection_status);
+      }
+    } catch (error) {
+      console.error('Failed to check Punchh service status:', error);
+    }
+  };
+
+  const syncUserWithPunchh = async (userId: number) => {
+    setSyncingUsers(prev => new Set(prev).add(userId));
+    try {
+      const response = await fetch(`/admin/api/punchh-sync/sync-user/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ dry_run: false })
+      });
+
+      const data = await response.json();
+      
+      if (data.status) {
+        toast({
+          title: "Sync Successful",
+          description: data.message,
+        });
+        // Refresh customer list to show updated data
+        fetchCustomers(getCurrentFilters());
+      } else {
+        toast({
+          title: "Sync Failed",
+          description: data.message || 'Unknown error',
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Sync error:', error);
+      toast({
+        title: "Sync Failed",
+        description: "Network error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncingUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
+      });
+    }
+  };
+
+  const syncAllUsersWithPunchh = async () => {
+    try {
+      const response = await fetch('/admin/api/punchh-sync/sync-all', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ 
+          dry_run: false,
+          batch_size: 50
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.status) {
+        toast({
+          title: "Bulk Sync Completed",
+          description: `${data.data.synced_users} users synced, ${data.data.total_transactions} transactions created`,
+        });
+        // Refresh customer list to show updated data
+        fetchCustomers(getCurrentFilters());
+      } else {
+        toast({
+          title: "Bulk Sync Failed",
+          description: data.message || 'Unknown error',
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Bulk sync error:', error);
+      toast({
+        title: "Bulk Sync Failed",
+        description: "Network error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getPunchhSyncStatusIcon = (customer: Customer) => {
+    if (!customer.punchh_token) {
+      return <XCircle className="h-4 w-4 text-gray-400" title="No Punchh token" />;
+    }
+    
+    switch (customer.punchh_sync_status) {
+      case 'synced':
+        return <CheckCircle className="h-4 w-4 text-green-500" title="Synced with Punchh" />;
+      case 'pending':
+        return <Loader2 className="h-4 w-4 animate-spin text-yellow-500" title="Sync pending" />;
+      case 'error':
+        return <XCircle className="h-4 w-4 text-red-500" title="Sync error" />;
+      default:
+        return <AlertTriangle className="h-4 w-4 text-orange-500" title="Not connected" />;
+    }
+  };
 
   return (
     <AdminLayout>
@@ -209,6 +343,18 @@ export default function Customers({}: CustomersProps) {
             <p className="text-sm sm:text-base text-muted-foreground">
               Manage customer accounts and loyalty points
             </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {punchhServiceStatus && (
+              <Button
+                onClick={syncAllUsersWithPunchh}
+                className="flex items-center gap-2"
+                variant="outline"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Sync All with Punchh
+              </Button>
+            )}
           </div>
         </div>
 
@@ -238,7 +384,7 @@ export default function Customers({}: CustomersProps) {
                     <span className="hidden sm:inline">Filters</span>
                     {hasActiveFilters && (
                       <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                        {[searchTerm, statusFilter, dateFilter].filter(f => f !== 'All' && f !== '').length}
+                        {[searchTerm, statusFilter, dateFilter, customDateRange.startDate, customDateRange.endDate].filter(f => f !== 'All' && f !== '').length}
                       </span>
                     )}
                   </Button>
@@ -260,7 +406,7 @@ export default function Customers({}: CustomersProps) {
               <Collapsible open={showFilters} className="space-y-4">
                 <CollapsibleContent>
                   <div className="border-t pt-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className={`grid grid-cols-1 sm:grid-cols-2 ${dateFilter === 'Custom' ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-4`}>
                       {/* Status Filter */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Status</label>
@@ -280,18 +426,45 @@ export default function Customers({}: CustomersProps) {
                         <label className="text-sm font-medium">Signup Date</label>
                         <select
                           value={dateFilter}
-                          onChange={(e) => setDateFilter(e.target.value as 'All' | 'Last 30 days' | 'Last 90 days' | 'Last year')}
+                          onChange={(e) => setDateFilter(e.target.value as 'All' | 'Last 30 days' | 'Last 90 days' | 'Last year' | 'Custom')}
                           className="w-full p-2 border border-gray-300 rounded-md text-sm"
                         >
                           <option value="All">All Dates</option>
                           <option value="Last 30 days">Last 30 days</option>
                           <option value="Last 90 days">Last 90 days</option>
                           <option value="Last year">Last year</option>
+                          <option value="Custom">Custom Range</option>
                         </select>
                       </div>
 
+                      {/* Custom Date Range */}
+                      {dateFilter === 'Custom' && (
+                        <div className="flex items-end gap-6">
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Start Date</label>
+                            <Input
+                              type="date"
+                              value={customDateRange.startDate}
+                              onChange={(e) => setCustomDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                              className="h-9 w-50"
+                              placeholder="mm-dd-yyyy"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">End Date</label>
+                            <Input
+                              type="date"
+                              value={customDateRange.endDate}
+                              onChange={(e) => setCustomDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                              className="h-9 w-50"
+                              placeholder="mm-dd-yyyy"
+                            />
+                          </div>
+                        </div>
+                      )}
+
                       {/* Clear Filters */}
-                      <div className="space-y-2 sm:col-span-2 lg:col-span-1">
+                      <div className={`space-y-2 sm:col-span-2 ${dateFilter === 'Custom' ? 'lg:col-span-1' : 'lg:col-span-1'}`}>
                         <label className="text-sm font-medium">&nbsp;</label>
                         <Button 
                           variant="outline" 
@@ -382,13 +555,16 @@ export default function Customers({}: CustomersProps) {
                           {getSortIcon('created_at')}
                         </button>
                       </th>
+                      {punchhServiceStatus && (
+                        <th className="text-left p-2 sm:p-3 font-medium">Punchh Sync</th>
+                      )}
                       <th className="text-left p-2 sm:p-3 font-medium">Actions</th>
                     </tr>
                   </thead>
                 <tbody>
                     {customers.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={punchhServiceStatus ? 7 : 6} className="text-center py-8 text-muted-foreground">
                           No customers found
                         </td>
                       </tr>
@@ -409,6 +585,18 @@ export default function Customers({}: CustomersProps) {
                         <span className="font-medium text-blue-600">{customer.totalPoints.toLocaleString()}</span>
                       </td>
                       <td className="p-2 sm:p-3 text-muted-foreground hidden md:table-cell">{customer.signupDate}</td>
+                      {punchhServiceStatus && (
+                        <td className="p-2 sm:p-3">
+                          <div className="flex items-center gap-2">
+                            {getPunchhSyncStatusIcon(customer)}
+                            {customer.last_punchh_sync && (
+                              <span className="text-xs text-muted-foreground">
+                                {formatDate(customer.last_punchh_sync)}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                      )}
                       <td className="p-2 sm:p-3">
                         <div className="flex items-center gap-1 sm:gap-2">
                           {/* Eye icon - Transaction History */}
@@ -420,9 +608,28 @@ export default function Customers({}: CustomersProps) {
                               setShowTransactionHistory(true);
                             }}
                             className="h-8 w-8 p-0"
+                            title="View Transaction History"
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
+                          
+                          {/* Punchh Sync button */}
+                          {punchhServiceStatus && customer.punchh_token && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => syncUserWithPunchh(customer.id)}
+                              disabled={syncingUsers.has(customer.id)}
+                              className="h-8 w-8 p-0"
+                              title="Sync with Punchh"
+                            >
+                              {syncingUsers.has(customer.id) ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <RefreshCw className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
                         </div>
                       </td>
                     </tr>

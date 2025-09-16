@@ -30,6 +30,7 @@ class User extends Authenticatable
         'country_code',
         'status',
         'email_verified_at',
+        'punchh_token',
     ];
 
     /**

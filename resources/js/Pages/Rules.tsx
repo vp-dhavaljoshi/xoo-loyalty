@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '@/Layouts/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Plus, Edit, Trash2, Eye, MoreHorizontal, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { CreateRuleModal } from '@/components/CreateRuleModal';
+
+interface Condition {
+  id: string;
+  field: string;
+  operator: string;
+  value: string;
+  connector?: 'AND' | 'OR';
+}
 
 interface Rule {
   id: number;
@@ -18,6 +27,9 @@ interface Rule {
   type: 'purchase' | 'referral' | 'birthday' | 'anniversary';
   conditions: string;
   createdAt: string;
+  priority?: number;
+  rewardMultiplier?: number;
+  conditionObjects?: Condition[];
 }
 
 interface User {
@@ -34,13 +46,49 @@ interface RulesProps {
 export default function Rules({}: RulesProps) {
   const [activeTab, setActiveTab] = useState('all');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showCreateRuleModal, setShowCreateRuleModal] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedRule, setSelectedRule] = useState<Rule | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Sample rules data
-  const [rules, setRules] = useState<Rule[]>([
+  // Rules data
+  const [rules, setRules] = useState<Rule[]>([]);
+
+  // Load rules from backend
+  useEffect(() => {
+    const loadRules = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/admin/api/rules', {
+          headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+          }
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          const formattedRules = result.data.map((rule: any) => ({
+            id: rule.id,
+            name: rule.name,
+            description: rule.description,
+            status: rule.status,
+            points: rule.points_earned,
+            type: rule.type,
+            conditions: rule.conditions,
+            createdAt: rule.created_at.split('T')[0],
+            priority: rule.priority,
+            rewardMultiplier: rule.reward_multiplier,
+            conditionObjects: rule.condition_objects
+          }));
+          setRules(formattedRules);
+        }
+      } catch (error) {
+        console.error('Error loading rules:', error);
+        // Fallback to sample data
+        setRules([
     {
       id: 1,
       name: "Purchase Points",
@@ -81,7 +129,14 @@ export default function Rules({}: RulesProps) {
       conditions: "Minimum 1 year membership",
       createdAt: "2024-01-05"
     }
-  ]);
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadRules();
+  }, []);
 
   const [newRule, setNewRule] = useState({
     name: '',
@@ -139,6 +194,61 @@ export default function Rules({}: RulesProps) {
     }
   };
 
+  const handleCreateRuleWithModal = async (ruleData: Omit<Rule, 'id'>) => {
+    setIsCreating(true);
+    try {
+      const response = await fetch('/admin/api/rules', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        },
+        body: JSON.stringify({
+          name: ruleData.name,
+          description: ruleData.description,
+          points_earned: ruleData.pointsEarned,
+          priority: ruleData.priority,
+          reward_multiplier: ruleData.rewardMultiplier,
+          active: ruleData.active,
+          conditions: ruleData.conditions,
+          type: 'purchase',
+          is_lifetime: ruleData.isLifetime,
+          max_applications: ruleData.maxApplications,
+          cooldown_period: ruleData.cooldownPeriod
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Convert backend data to frontend format
+        const newRule: Rule = {
+          id: result.data.id,
+          name: result.data.name,
+          description: result.data.description,
+          status: result.data.status,
+          points: result.data.points_earned,
+          type: result.data.type,
+          conditions: result.data.conditions,
+          createdAt: result.data.created_at.split('T')[0],
+          priority: result.data.priority,
+          rewardMultiplier: result.data.reward_multiplier,
+          conditionObjects: result.data.condition_objects
+        };
+
+        setRules([newRule, ...rules]);
+        setShowCreateRuleModal(false);
+      } else {
+        console.error('Error creating rule:', result.message);
+        // You might want to show a toast notification here
+      }
+    } catch (error) {
+      console.error('Error creating rule:', error);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   const handleEditRule = () => {
     if (selectedRule && newRule.name && newRule.description) {
       const updatedRules = rules.map(rule =>
@@ -189,7 +299,7 @@ export default function Rules({}: RulesProps) {
               Configure and manage your loyalty program rules and conditions
             </p>
           </div>
-          <Button onClick={() => setShowCreateDialog(true)} className="flex items-center gap-2">
+          <Button onClick={() => setShowCreateRuleModal(true)} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             Create New Rule
           </Button>
@@ -222,7 +332,17 @@ export default function Rules({}: RulesProps) {
 
         {/* Rules List */}
         <div className="grid gap-4">
-          {filteredRules.map((rule) => (
+          {isLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+              <p className="mt-2 text-muted-foreground">Loading rules...</p>
+            </div>
+          ) : filteredRules.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No rules found</p>
+            </div>
+          ) : (
+            filteredRules.map((rule) => (
             <Card key={rule.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
@@ -271,7 +391,8 @@ export default function Rules({}: RulesProps) {
                 </div>
               </CardContent>
             </Card>
-          ))}
+            ))
+          )}
         </div>
 
         {/* Create Rule Dialog */}
@@ -435,6 +556,14 @@ export default function Rules({}: RulesProps) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Create Rule Modal */}
+        <CreateRuleModal
+          isOpen={showCreateRuleModal}
+          onClose={() => setShowCreateRuleModal(false)}
+          onSubmit={handleCreateRuleWithModal}
+          isLoading={isCreating}
+        />
       </div>
     </AdminLayout>
   );

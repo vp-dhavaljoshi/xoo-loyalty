@@ -43,7 +43,7 @@ trait LoyaltySettingAttributes
     public function getIsBooleanAttribute(): bool
     {
         $booleanKeys = [
-            'fraud_detection_enabled',
+            'fraud_prevention_enabled',
             'require_order_completion',
             'time_based_freeze',
             'new_customer_freeze',
@@ -61,6 +61,7 @@ trait LoyaltySettingAttributes
             'freeze_duration_hours',
             'customer_age_threshold_days',
             'signup_bonus_points',
+            'currency_to_point_rate',
         ];
         
         return in_array($this->key, $integerKeys);
@@ -72,7 +73,7 @@ trait LoyaltySettingAttributes
     public function getIsFloatAttribute(): bool
     {
         $floatKeys = [
-            'point_to_currency_rate',
+            // No float settings currently
         ];
         
         return in_array($this->key, $floatKeys);
@@ -84,13 +85,13 @@ trait LoyaltySettingAttributes
     public function getDisplayNameAttribute(): string
     {
         $displayNames = [
-            'fraud_detection_enabled' => 'Fraud Detection Enabled',
+            'fraud_prevention_enabled' => 'Fraud Prevention Enabled',
             'require_order_completion' => 'Require Order Completion',
             'time_based_freeze' => 'Time Based Freeze',
             'freeze_duration_hours' => 'Freeze Duration (Hours)',
             'new_customer_freeze' => 'New Customer Freeze',
             'customer_age_threshold_days' => 'Customer Age Threshold (Days)',
-            'point_to_currency_rate' => 'Point to Currency Rate',
+            'currency_to_point_rate' => 'Currency to Points Rate',
             'currency' => 'Currency',
             'signup_bonus_points' => 'Signup Bonus Points',
         ];
@@ -104,13 +105,13 @@ trait LoyaltySettingAttributes
     public function getDescriptionAttribute(): string
     {
         $descriptions = [
-            'fraud_detection_enabled' => 'Enable fraud detection for loyalty transactions',
+            'fraud_prevention_enabled' => 'Enable fraud prevention for loyalty transactions',
             'require_order_completion' => 'Require order completion before awarding points',
             'time_based_freeze' => 'Enable time-based freeze for new customers',
             'freeze_duration_hours' => 'Duration in hours for customer freeze period',
             'new_customer_freeze' => 'Freeze new customers for a specified period',
             'customer_age_threshold_days' => 'Number of days to consider a customer as new',
-            'point_to_currency_rate' => 'Conversion rate from points to currency',
+            'currency_to_point_rate' => 'Number of points per dollar',
             'currency' => 'Default currency for the loyalty system',
             'signup_bonus_points' => 'Bonus points awarded to new customers on signup',
         ];
@@ -124,13 +125,13 @@ trait LoyaltySettingAttributes
     public function getCategoryAttribute(): string
     {
         $categories = [
-            'fraud_detection_enabled' => 'security',
+            'fraud_prevention_enabled' => 'security',
             'require_order_completion' => 'security',
             'time_based_freeze' => 'security',
             'freeze_duration_hours' => 'security',
             'new_customer_freeze' => 'security',
             'customer_age_threshold_days' => 'security',
-            'point_to_currency_rate' => 'rewards',
+            'currency_to_point_rate' => 'rewards',
             'currency' => 'general',
             'signup_bonus_points' => 'rewards',
         ];

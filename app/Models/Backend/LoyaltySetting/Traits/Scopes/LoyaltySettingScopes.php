@@ -12,14 +12,14 @@ trait LoyaltySettingScopes
         $categoryKeys = [
             'general' => ['currency'],
             'security' => [
-                'fraud_detection_enabled',
+                'fraud_prevention_enabled',
                 'require_order_completion',
                 'time_based_freeze',
                 'freeze_duration_hours',
                 'new_customer_freeze',
                 'customer_age_threshold_days',
             ],
-            'rewards' => ['point_to_currency_rate', 'signup_bonus_points'],
+            'rewards' => ['currency_to_point_rate', 'signup_bonus_points'],
         ];
         
         $keys = $categoryKeys[$category] ?? [];
@@ -61,7 +61,7 @@ trait LoyaltySettingScopes
     public function scopeBoolean($query)
     {
         $booleanKeys = [
-            'fraud_detection_enabled',
+            'fraud_prevention_enabled',
             'require_order_completion',
             'time_based_freeze',
             'new_customer_freeze',
@@ -79,6 +79,7 @@ trait LoyaltySettingScopes
             'freeze_duration_hours',
             'customer_age_threshold_days',
             'signup_bonus_points',
+            'currency_to_point_rate',
         ];
         
         return $query->whereIn('key', $integerKeys);
@@ -90,7 +91,7 @@ trait LoyaltySettingScopes
     public function scopeFloat($query)
     {
         $floatKeys = [
-            'point_to_currency_rate',
+            // No float settings currently
         ];
         
         return $query->whereIn('key', $floatKeys);
@@ -158,8 +159,8 @@ trait LoyaltySettingScopes
         return $query->orderByRaw("
             CASE 
                 WHEN key IN ('currency') THEN 1
-                WHEN key IN ('fraud_detection_enabled', 'require_order_completion', 'time_based_freeze', 'freeze_duration_hours', 'new_customer_freeze', 'customer_age_threshold_days') THEN 2
-                WHEN key IN ('point_to_currency_rate', 'signup_bonus_points') THEN 3
+                WHEN key IN ('fraud_prevention_enabled', 'require_order_completion', 'time_based_freeze', 'freeze_duration_hours', 'new_customer_freeze', 'customer_age_threshold_days') THEN 2
+                WHEN key IN ('currency_to_point_rate', 'signup_bonus_points') THEN 3
                 ELSE 4
             END
         ");
@@ -180,7 +181,7 @@ trait LoyaltySettingScopes
     {
         $requiredKeys = [
             'currency',
-            'point_to_currency_rate',
+            'currency_to_point_rate',
         ];
         
         return $query->whereIn('key', $requiredKeys);
@@ -193,7 +194,7 @@ trait LoyaltySettingScopes
     {
         $requiredKeys = [
             'currency',
-            'point_to_currency_rate',
+            'currency_to_point_rate',
         ];
         
         return $query->whereNotIn('key', $requiredKeys);

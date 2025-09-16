@@ -40,7 +40,11 @@ class UserRepository
 
             // Apply date filter using scope
             if (!empty($filters['date_filter']) && $filters['date_filter'] !== AppConstants::DATE_FILTER_ALL) {
-                $query->byDateFilter($filters['date_filter']);
+                $query->byDateFilter(
+                    $filters['date_filter'],
+                    $filters['start_date'] ?? '',
+                    $filters['end_date'] ?? ''
+                );
             }
 
             // Apply sorting
@@ -61,10 +65,13 @@ class UserRepository
                     'name' => $user->full_name,
                     'email' => $user->email,
                     'status' => $user->status == 1 ? AppConstants::USER_STATUS_ACTIVE : AppConstants::USER_STATUS_INACTIVE,
-                    'totalPoints' => $this->getUserTotalPoints($user->id), // This would need to be implemented based on your points system
-                    'signupDate' => $user->created_at->format('Y-m-d'),
+                    'totalPoints' => $this->getUserTotalPoints($user->id),
+                    'signupDate' => $user->created_at->format('m-d-Y'),
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
+                    'punchh_token' => $user->punchh_token,
+                    'punchh_sync_status' => $this->getUserPunchhSyncStatus($user->id),
+                    'last_punchh_sync' => $this->getUserLastPunchhSync($user->id),
                 ];
             });
 
@@ -189,6 +196,55 @@ class UserRepository
     }
 
     /**
+     * Get user's Punchh sync status
+     *
+     * @param int $userId
+     * @return string
+     */
+    private function getUserPunchhSyncStatus(int $userId): string
+    {
+        $user = config('models.models.user.class')::find($userId);
+        
+        if (!$user || !$user->punchh_token) {
+            return 'not_connected';
+        }
+
+        // Check if user has recent sync transactions
+        $lastSyncTransaction = config('models.models.loyalty_transaction.class')::where('user_id', $userId)
+            ->where('reference_type', 'punchh_sync')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$lastSyncTransaction) {
+            return 'pending';
+        }
+
+        // Check if sync was successful (no error in metadata)
+        $metadata = $lastSyncTransaction->metadata ?? [];
+        if (isset($metadata['error'])) {
+            return 'error';
+        }
+
+        return 'synced';
+    }
+
+    /**
+     * Get user's last Punchh sync date
+     *
+     * @param int $userId
+     * @return string|null
+     */
+    private function getUserLastPunchhSync(int $userId): ?string
+    {
+        $lastSyncTransaction = config('models.models.loyalty_transaction.class')::where('user_id', $userId)
+            ->where('reference_type', 'punchh_sync')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        return $lastSyncTransaction ? $lastSyncTransaction->created_at->toISOString() : null;
+    }
+
+    /**
      * Export users to CSV format
      *
      * @param array $filters
@@ -209,7 +265,11 @@ class UserRepository
             }
 
             if (!empty($filters['date_filter']) && $filters['date_filter'] !== AppConstants::DATE_FILTER_ALL) {
-                $query->byDateFilter($filters['date_filter']);
+                $query->byDateFilter(
+                    $filters['date_filter'],
+                    $filters['start_date'] ?? '',
+                    $filters['end_date'] ?? ''
+                );
             }
 
             $users = $query->orderBy(AppConstants::SORT_FIELD_CREATED_AT, AppConstants::SORT_DESC)->get();
@@ -223,7 +283,7 @@ class UserRepository
                     $user->email,
                     $user->status == 1 ? AppConstants::USER_STATUS_ACTIVE : AppConstants::USER_STATUS_INACTIVE,
                     $this->getUserTotalPoints($user->id),
-                    $user->created_at->format('Y-m-d'),
+                    $user->created_at->format('m-d-Y'),
                     $user->phone ?? ''
                 ];
             }

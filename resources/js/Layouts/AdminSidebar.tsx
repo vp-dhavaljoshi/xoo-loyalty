@@ -8,7 +8,7 @@ import {
   Crown,
   FileBarChart,
   ChevronDown,
-  Gift
+  Gift,
 } from 'lucide-react';
 import { Link, usePage } from '@inertiajs/react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';

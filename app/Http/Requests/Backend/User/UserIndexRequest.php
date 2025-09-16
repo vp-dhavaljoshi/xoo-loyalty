@@ -28,6 +28,8 @@ class UserIndexRequest extends FormRequest
             'search' => 'nullable|string|max:' . AppConstants::MAX_SEARCH_LENGTH,
             'status' => 'nullable|string|in:' . implode(',', AppConstants::getAllowedStatusValues()),
             'date_filter' => 'nullable|string|in:' . implode(',', AppConstants::getAllowedDateFilterValues()),
+            'start_date' => 'nullable|date_format:Y-m-d',
+            'end_date' => 'nullable|date_format:Y-m-d|after_or_equal:start_date',
             'sort_by' => 'nullable|string|in:' . implode(',', AppConstants::getAllowedSortFields()),
             'sort_direction' => 'nullable|string|in:' . implode(',', AppConstants::getAllowedSortDirections()),
         ];
@@ -50,6 +52,9 @@ class UserIndexRequest extends FormRequest
             'search.max' => 'Search cannot exceed ' . AppConstants::MAX_SEARCH_LENGTH . ' characters.',
             'status.in' => 'Status must be one of: ' . implode(', ', AppConstants::getAllowedStatusValues()) . '.',
             'date_filter.in' => 'Date filter must be one of: ' . implode(', ', AppConstants::getAllowedDateFilterValues()) . '.',
+            'start_date.date_format' => 'Start date must be in Y-m-d format.',
+            'end_date.date_format' => 'End date must be in Y-m-d format.',
+            'end_date.after_or_equal' => 'End date must be after or equal to start date.',
             'sort_by.in' => 'Sort by must be one of: ' . implode(', ', AppConstants::getAllowedSortFields()) . '.',
             'sort_direction.in' => 'Sort direction must be one of: ' . implode(', ', AppConstants::getAllowedSortDirections()) . '.',
         ];
@@ -70,6 +75,8 @@ class UserIndexRequest extends FormRequest
             'search' => $validated['search'] ?? '',
             'status' => $validated['status'] ?? AppConstants::USER_STATUS_ALL,
             'date_filter' => $validated['date_filter'] ?? AppConstants::DATE_FILTER_ALL,
+            'start_date' => $validated['start_date'] ?? '',
+            'end_date' => $validated['end_date'] ?? '',
             'sort_by' => $validated['sort_by'] ?? AppConstants::SORT_FIELD_CREATED_AT,
             'sort_direction' => $validated['sort_direction'] ?? AppConstants::SORT_DESC,
         ];
@@ -88,6 +95,8 @@ class UserIndexRequest extends FormRequest
             'search' => $validated['search'] ?? '',
             'status' => $validated['status'] ?? AppConstants::USER_STATUS_ALL,
             'date_filter' => $validated['date_filter'] ?? AppConstants::DATE_FILTER_ALL,
+            'start_date' => $validated['start_date'] ?? '',
+            'end_date' => $validated['end_date'] ?? '',
         ];
     }
 }

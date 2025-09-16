@@ -93,11 +93,13 @@ class LoyaltyTransactionRepository
                     'reference_id' => $transaction->reference_id,
                     'reference_type' => $transaction->reference_type,
                     'metadata' => $transaction->metadata,
-                    'expires_at' => $transaction->expires_at?->format('Y-m-d H:i:s'),
+                    'expires_at' => $transaction->expires_at?->format('m-d-Y H:i:s'),
                     'is_expired' => $transaction->is_expired,
                     'formatted_date' => $transaction->formatted_date,
                     'formatted_time' => $transaction->formatted_time,
-                    'created_at' => $transaction->created_at->format('Y-m-d H:i:s'),
+                    'formatted_date_time' => $transaction->formatted_date_time,
+                    'formatted_date_time_with_seconds' => $transaction->formatted_date_time_with_seconds,
+                    'created_at' => $transaction->created_at->format('m-d-Y H:i:s'),
                 ];
             });
 
@@ -185,7 +187,8 @@ class LoyaltyTransactionRepository
                     'points_color' => $transaction->points_color,
                     'points_balance_after' => $transaction->points_balance_after,
                     'formatted_date' => $transaction->formatted_date,
-                    'created_at' => $transaction->created_at->format('Y-m-d H:i:s'),
+                    'formatted_date_time' => $transaction->formatted_date_time,
+                    'created_at' => $transaction->created_at->format('m-d-Y H:i:s'),
                 ];
             });
 
@@ -245,11 +248,11 @@ class LoyaltyTransactionRepository
                 'reference_id' => $transaction->reference_id,
                 'reference_type' => $transaction->reference_type,
                 'metadata' => $transaction->metadata,
-                'expires_at' => $transaction->expires_at?->format('Y-m-d H:i:s'),
+                'expires_at' => $transaction->expires_at?->format('m-d-Y H:i:s'),
                 'is_expired' => $transaction->is_expired,
                 'is_active' => $transaction->is_active,
-                'created_at' => $transaction->created_at->format('Y-m-d H:i:s'),
-                'updated_at' => $transaction->updated_at->format('Y-m-d H:i:s'),
+                'created_at' => $transaction->created_at->format('m-d-Y H:i:s'),
+                'updated_at' => $transaction->updated_at->format('m-d-Y H:i:s'),
             ];
 
             return [

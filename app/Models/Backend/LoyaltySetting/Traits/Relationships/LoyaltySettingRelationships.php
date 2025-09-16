@@ -65,7 +65,7 @@ trait LoyaltySettingRelationships
                 'currency',
             ],
             'security' => [
-                'fraud_detection_enabled',
+                'fraud_prevention_enabled',
                 'require_order_completion',
                 'time_based_freeze',
                 'freeze_duration_hours',
@@ -73,7 +73,7 @@ trait LoyaltySettingRelationships
                 'customer_age_threshold_days',
             ],
             'rewards' => [
-                'point_to_currency_rate',
+                'currency_to_point_rate',
                 'signup_bonus_points',
             ],
         ];
@@ -203,13 +203,13 @@ trait LoyaltySettingRelationships
         
         // Return with frontend-friendly keys
         return [
-            'fraudDetectionEnabled' => $result['fraud_detection_enabled'] ?? true,
+            'fraudPreventionEnabled' => $result['fraud_prevention_enabled'] ?? true,
             'requireOrderCompletion' => $result['require_order_completion'] ?? true,
             'timeBasedFreeze' => $result['time_based_freeze'] ?? true,
             'freezeDurationHours' => $result['freeze_duration_hours'] ?? 24,
             'newCustomerFreeze' => $result['new_customer_freeze'] ?? true,
             'customerAgeThresholdDays' => $result['customer_age_threshold_days'] ?? 7,
-            'pointToCurrencyRate' => $result['point_to_currency_rate'] ?? 0.01,
+            'currencyToPointRate' => $result['currency_to_point_rate'] ?? 100,
             'currency' => $result['currency'] ?? 'USD',
             'signupBonusPoints' => $result['signup_bonus_points'] ?? 100,
         ];
@@ -224,13 +224,13 @@ trait LoyaltySettingRelationships
     public static function updateFromArray(array $settingsData): bool
     {
         $keyMapping = [
-            'fraudDetectionEnabled' => 'fraud_detection_enabled',
+            'fraudPreventionEnabled' => 'fraud_prevention_enabled',
             'requireOrderCompletion' => 'require_order_completion',
             'timeBasedFreeze' => 'time_based_freeze',
             'freezeDurationHours' => 'freeze_duration_hours',
             'newCustomerFreeze' => 'new_customer_freeze',
             'customerAgeThresholdDays' => 'customer_age_threshold_days',
-            'pointToCurrencyRate' => 'point_to_currency_rate',
+            'currencyToPointRate' => 'currency_to_point_rate',
             'currency' => 'currency',
             'signupBonusPoints' => 'signup_bonus_points',
         ];
@@ -255,7 +255,7 @@ trait LoyaltySettingRelationships
     {
         // Boolean settings
         $booleanKeys = [
-            'fraud_detection_enabled',
+            'fraud_prevention_enabled',
             'require_order_completion',
             'time_based_freeze',
             'new_customer_freeze',
@@ -270,6 +270,7 @@ trait LoyaltySettingRelationships
             'freeze_duration_hours',
             'customer_age_threshold_days',
             'signup_bonus_points',
+            'currency_to_point_rate',
         ];
         
         if (in_array($key, $integerKeys)) {
@@ -278,7 +279,7 @@ trait LoyaltySettingRelationships
         
         // Float settings
         $floatKeys = [
-            'point_to_currency_rate',
+            // No float settings currently
         ];
         
         if (in_array($key, $floatKeys)) {
